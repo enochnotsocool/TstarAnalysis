@@ -1,0 +1,10 @@
+<lcgdict>
+   <selection>
+      <class name="ChiSquareResult"/>
+      <class name="HitFitResult"/>
+      <class name="edm::Wrapper<ChiSquareResult>"/>
+      <class name="edm::Wrapper<HitFitResult>"/>
+   </selection>
+   <exclusion>
+   </exclusion>
+</lcgdict>

@@ -1,0 +1,5 @@
+<use name="FWCore/FWLite" />
+<use name="DataFormats/FWLite" />
+<use name="DataFormats/Luminosity" />
+<use name="PhysicsTools/FWLite" />
+<bin name="read_test" file="read_test.cc"/>
