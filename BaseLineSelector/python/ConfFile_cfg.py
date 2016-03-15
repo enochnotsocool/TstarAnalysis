@@ -21,7 +21,7 @@ options.register( 'sample',
     )
 
 options.register( 'output',
-    'tstar_baseline',
+    'tstarBaseline.root',
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.string,
     'Output EDM filename'
@@ -59,7 +59,7 @@ from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag.globaltag = '76X_mcRun2_asymptotic_v12'
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(options.sample))
@@ -117,7 +117,7 @@ process.tstarFilter.runMode = cms.int32( options.Mode )
 #-------------------------------------------------------------------------------
 process.edmOut = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string('edmOut.root'),
+    fileName = cms.untracked.string( options.output ),
     outputCommands = cms.untracked.vstring(
         "drop *",
         "keep *_externalLHEProducer_*_*",

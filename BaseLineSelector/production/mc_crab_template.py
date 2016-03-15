@@ -17,7 +17,9 @@ config.JobType.pyCfgParams = [
 config.Data.inputDataset = 'DATASET'
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
-config.Data.unitsPerJob = 32
+config.Data.unitsPerJob = 16
 config.Data.outLFNDirBase = '/store/user/yichen/tstar_76X/'
+config.Data.publication = False
+
 
 config.Site.storageSite = 'T3_TW_NTU_HEP'

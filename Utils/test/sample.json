@@ -1,0 +1,10 @@
+{
+   "Name"      : "Name_Content",
+   "Latex Name": "LatexName_Content",
+   "Cross Section":        [ 831.76, 19.77,-29.20, 58.24 ,-57.51],
+   "Selection Efficiency": [ 0.001533381521, 0.000043199297 ],
+   "Sample Weight":        [1.0],
+   "EDM Files" : [
+         "edmOut.root"
+   ]
+}
