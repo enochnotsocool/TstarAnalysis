@@ -52,6 +52,7 @@ function main()
       sample_input=$( make_input_list $file )
       output=${EDM_DIR}/${channel}/${name}/tstarBaseline_${label}.root
       sh_file=${SH_DIR}/${channel}/${name}/run_${label}.sh
+      log_file=${LOG_DIR}/${channel}/${name}/log_${label}.txt
       cmd="cmsRun $PWD/run_production.py"
       cmd="$cmd maxEvents=-1"
       cmd="$cmd sample=$sample_input"
@@ -66,7 +67,7 @@ function main()
       fi
       echo "#!/bin/bash" > $sh_file
       echo "eval \`scramv1 runtime -sh\`" >> $sh_file
-      echo "$cmd" >> $sh_file
+      echo "$cmd &> $log_file" >> $sh_file
 
       chmod +x $sh_file
    done
