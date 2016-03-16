@@ -27,18 +27,18 @@ options.register( 'output',
     'Output EDM filename'
     )
 
-options.register( 'RunOnMC' ,
-    True,
-    opts.VarParsing.multiplicity.singleton,
-    opts.VarParsing.varType.string,
-    'Run On MC (Data otherwise)'
-    )
-
 options.register( 'Mode',
     0,
     opts.VarParsing.multiplicity.singleton,
     opts.VarParsing.varType.int,
     'Filter operation'
+    )
+
+options.register( 'LumiMask',
+    '',
+    opts.VarParsing.multiplicity.singleton,
+    opts.VarParsing.varType.string,
+    'Add lumi mask to process'
     )
 
 options.setDefault('maxEvents',1000)
@@ -63,6 +63,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(options.sample))
+
+import FWCore.PythonUtilities.LumiList as LumiList
+if options.LumiMask:
+    process.source.lumisToProcess = LumiList.LumiList(filename = options.LumiMask ).getVLuminosityBlockRange()
+
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # process.options.allowUnscheduled = cms.untracked.bool(True)
