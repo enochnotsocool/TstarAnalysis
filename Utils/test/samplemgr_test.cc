@@ -17,18 +17,17 @@ int main(int argc, char* argv[]) {
    cout << "Hello world!" << endl;
 
    cout << "Reading Json file" << endl;
-   SampleMgr mysample("test.json");
+   SampleMgr mysample("sample.json", "Single_T" );
 
    fwlite::Handle<std::vector<pat::Jet>> Jets;
 
-   cout << mysample.CrossSection().CentralValue() << endl;
-   cout << mysample.SelectionEfficiency().CentralValue() << endl;
-   cout << mysample.Weight().CentralValue() << endl;
+   cout << mysample.KFactor().CentralValue() << endl;
    cout << mysample.EventsInFile() << endl;
    cout << mysample.ExpectedYield( 2.42 ) << endl;
    int i = 0;
    cout << "entering main loop" << endl;
    for( mysample.Event().toBegin() ; !mysample.Event().atEnd() ; ++mysample.Event() , ++i ){
+      if( i > 10 ){break;}
       cout << "Event" << i << endl;
       Jets.getByLabel( mysample.Event() , "skimmedPatJets" );
       for( const auto& jet : *Jets.product() ){

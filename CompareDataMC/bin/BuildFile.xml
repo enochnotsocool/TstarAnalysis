@@ -1,5 +1,11 @@
+<use name="root" />
+<use name="roofit" />
 <use name="FWCore/FWLite" />
 <use name="DataFormats/FWLite" />
 <use name="DataFormats/Luminosity" />
 <use name="PhysicsTools/FWLite" />
-<bin name="read_test" file="read_test.cc"/>
+<use name="TstarAnalysis/Utils"/>
+<use name="TstarAnalysis/CompareDataMC"/>
+<bin name="read_test"        file="read_test.cc"/>
+<bin name="KinematicCompare" file="KinematicCompare.cc"/>
+<bin name="MakeRooFitObj"    file="MakeRooFitObj.cc"/>

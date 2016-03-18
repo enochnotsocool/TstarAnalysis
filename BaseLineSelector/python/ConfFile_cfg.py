@@ -124,7 +124,7 @@ process.edmOut = cms.OutputModule(
     "PoolOutputModule",
     fileName = cms.untracked.string( options.output ),
     outputCommands = cms.untracked.vstring(
-        "drop *",
+        "keep *",
         "keep *_externalLHEProducer_*_*",
         "keep *_generator_*_*",
         "keep *_prunedGenParticles_*_*",
@@ -135,12 +135,13 @@ process.edmOut = cms.OutputModule(
         "keep *_skimmedPatMuons_*_*",
         "keep *_skimmedPatElectrons_*_*",
         "keep *_skimmedPatJets_*_*",
+        "keep edmMergeableCounter_*_*_*",
         ),
     SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('myfilterpath') )
     )
 
 process.myfilterpath = cms.Path(
-    process.beforeSelect
+    process.beforeAny
     * process.hltfilter
     * process.selectedMuons
     * process.skimmedPatMuons
@@ -150,7 +151,7 @@ process.myfilterpath = cms.Path(
     * process.selectedJets
     * process.skimmedPatJets
     * process.tstarFilter
-    * process.afterSelect
+    * process.afterBaseLine
 )
 
 

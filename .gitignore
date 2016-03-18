@@ -1,16 +1,16 @@
-# General C++ exclusion 
+# General C++ exclusion
 *.o
 *.so
 
-# General Python exclusion 
+# General Python exclusion
 *.pyc
-__init__.py 
+__init__.py
 
-# Swap files 
-*.swp 
+# Swap files
+*.swp
 
 # General data file exclusions
-*.txt 
+*.txt
 *.root
 *.log
 log*
@@ -18,13 +18,12 @@ log*
 *.zip
 *.tgz
 *.eps
+*.png
 **/LSF*
 **/Log*
 
-# Specific file exclusion 
+# Specific file exclusion
 # [relative/path/to/file]
 
-# Specific file inclusion 
+# Specific file inclusion
 # ![relative/path/to/file]
-
-

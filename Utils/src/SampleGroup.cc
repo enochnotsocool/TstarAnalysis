@@ -11,14 +11,14 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Constructors
 //------------------------------------------------------------------------------
-SampleGroup::SampleGroup( const std::string& jsonfile ):
-   JsonLoader( jsonfile ),
-   _name( JsonParser().get<string>("Name")),
+SampleGroup::SampleGroup( const string& jsonfile, const string& label ):
+   JsonLoader( jsonfile , label ),
+   _name( label ),
    _latexname( JsonParser().get<string>("Latex Name"))
 {
    const vector<string> sample_config_list = GetStringList("Sample List");
    for( const auto& sample_config : sample_config_list ){
-      _samplelist.push_back( SampleMgr(sample_config) );
+      _samplelist.push_back( SampleMgr(sample_config , "TEST" ) );
    }
 }
 

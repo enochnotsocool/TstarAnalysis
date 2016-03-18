@@ -66,11 +66,13 @@ function main()
          cmd="$cmd LumiMask=$LUMIMASK"
       fi
       echo "#!/bin/bash" > $sh_file
+      echo "cd ${PWD}" >>  $sh_file
       echo "eval \`scramv1 runtime -sh\`" >> $sh_file
       echo "$cmd &> $log_file" >> $sh_file
 
       chmod +x $sh_file
    done
+   rm -rf $file_sections
 }
 
 #-------------------------------------------------------------------------------

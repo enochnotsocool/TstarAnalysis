@@ -6,6 +6,8 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/Utils/interface/SampleMgr.hh"
+#include "DataFormats/FWLite/interface/Handle.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include <boost/property_tree/json_parser.hpp>
 #include <iostream>
@@ -16,14 +18,14 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
-SampleMgr::SampleMgr( const std::string& filename ):
-   JsonLoader( filename ),
-   _name      ( JsonParser().get<string>("Name") ),
-   _latexname ( JsonParser().get<string>("Latex Name") ),
-   _crossSection( GetParameter ( "Cross Section" )),
-   _selectionEff( GetParameter ( "Selection Efficiency" )),
-   _weight      ( GetParameter ( "Sample Weight")),
-   _event       ( GetStringList("EDM Files" ))
+SampleMgr::SampleMgr( const std::string& filename, const std::string& label ):
+   JsonLoader( filename, label ),
+   _event         ( GetStringList("EDM Files" )),
+   _name          ( label ),
+   _latexname     ( JsonParser().get<string>("Latex Name") ),
+   _cross_section ( GetParameter( "Cross Section" )),
+   _k_factor      ( GetParameter( "K Factor")),
+   _selection_eff ( MakeSelectionEfficiency() )
 {
 }
 
@@ -35,5 +37,15 @@ SampleMgr::~SampleMgr()
 //------------------------------------------------------------------------------
 Parameter SampleMgr::ExpectedYield( const double totalLumi )const
 {
-   return totalLumi * CrossSection() * SelectionEfficiency() * Weight();
+   return totalLumi * CrossSection()* SelectionEfficiency() * KFactor();
+}
+
+Parameter SampleMgr::GetSampleWeight( const double totalLumi )
+{
+   return ExpectedYield(totalLumi);
+}
+
+Parameter SampleMgr::MakeSelectionEfficiency()
+{
+   return Parameter( 0,0,0);
 }

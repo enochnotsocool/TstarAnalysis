@@ -15,7 +15,7 @@
 
 class SampleGroup : public JsonLoader {
 public:
-   SampleGroup (const std::string& file);
+   SampleGroup(const std::string& file , const std::string& label );
    virtual ~SampleGroup ();
 
    const std::string& Name() const { return _name; }

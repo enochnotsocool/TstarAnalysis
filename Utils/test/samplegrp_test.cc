@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 
    cout << "Hello world!" << endl;
 
-   SampleGroup  myGroup("group.json");
+   SampleGroup  myGroup("group.json", "MyGroup");
    cout << myGroup.Name() << endl;
    for( auto& sample : myGroup.SampleList() ){
       cout << sample.Name() << endl;

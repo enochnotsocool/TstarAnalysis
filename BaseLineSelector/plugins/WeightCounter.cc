@@ -5,8 +5,7 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
  *  Reference:
- *    CMSSW ExternalLHEProducer class
- *   https://cmssdt.cern.ch/SDT/doxygen/CMSSW_7_6_4/doc/html/d1/d24/ExternalLHEProducer_8cc_source.html
+ *       CMSSW EventCountProducer Class
  *
 *******************************************************************************/
 // system include files
@@ -23,12 +22,13 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/MergeableCounter.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //------------------------------------------------------------------------------
 //   Class Definition
 //------------------------------------------------------------------------------
-class WeightCounter : public edm::one::EDProducer<edm::BeginRunProducer,edm::EndRunProducer>
+class WeightCounter : public edm::one::EDProducer<edm::one::WatchRuns,edm::EndRunProducer>
 {
 public:
    explicit WeightCounter(const edm::ParameterSet&);
@@ -36,13 +36,12 @@ public:
 
 private:
    virtual void produce(edm::Event &, const edm::EventSetup&) override;
-   virtual void beginRunProduce(edm::Run&,const edm::EventSetup&) override;
-   virtual void endRunProduce(edm::Run&,const edm::EventSetup&)override;
+   virtual void beginRun( const edm::Run&,const edm::EventSetup&) override;
+   virtual void endRun  ( const edm::Run&,const edm::EventSetup&) override;
+   virtual void endRunProduce(edm::Run& , const edm::EventSetup&) override;
 
-   const std::string      _label;
    const edm::EDGetToken  _lhesrc;
    edm::Handle<LHEEventProduct> _lheHandle;
-   unsigned _totalEventCount;
    unsigned _positiveEventCount;
    unsigned _negativeEventCount;
 };
@@ -53,12 +52,10 @@ using namespace std;
 //   Constructor and destructor
 //------------------------------------------------------------------------------
 WeightCounter::WeightCounter(const edm::ParameterSet& iConfig):
-   _label( iConfig.getParameter<std::string>("label")),
    _lhesrc( consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lhesrc")) )
 {
-   produces<unsigned, edm::InRun>("totalEvents")   .setBranchAlias("totalEvents");
-   produces<unsigned, edm::InRun>("positiveEvents").setBranchAlias("positiveEvents");
-   produces<unsigned, edm::InRun>("negativeEvents").setBranchAlias("negativeEvents");
+   produces<edm::MergeableCounter, edm::InRun>("positiveEvents").setBranchAlias("positiveEvents");
+   produces<edm::MergeableCounter, edm::InRun>("negativeEvents").setBranchAlias("negativeEvents");
 }
 
 WeightCounter::~WeightCounter(){}
@@ -66,17 +63,14 @@ WeightCounter::~WeightCounter(){}
 //------------------------------------------------------------------------------
 //   Main Control flow
 //------------------------------------------------------------------------------
-void WeightCounter::beginRunProduce( edm::Run& , const EventSetup& )
+void WeightCounter::beginRun( const edm::Run& , const edm::EventSetup& )
 {
-   _totalEventCount = 0;
    _positiveEventCount = 0;
    _negativeEventCount = 0;
-   return;
 }
 
 void WeightCounter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   _totalEventCount++;
    iEvent.getByToken( _lhesrc , _lheHandle );
    if( _lheHandle.isValid() ){
       if( _lheHandle->hepeup().XWGTUP > 0 ){
@@ -84,25 +78,21 @@ void WeightCounter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       } else{
          _negativeEventCount++; }
    } else {
-      _positiveEventCount++; }
+      _positiveEventCount++;
+   }
 }
 
+void WeightCounter::endRun( const edm::Run&, const edm::EventSetup& )
+{}
 
-void WeightCounter::endRunProduce( edm::Run& iRun, const EventSetup& iSetup)
+void WeightCounter::endRunProduce( edm::Run& iRun , const EventSetup& iSetup)
 {
-   cout << "[" << _label << "] " << endl
-      << "\tTotal:    " << _totalEventCount << " events" << endl
-      << "\tPositive: " << _positiveEventCount << " events" << endl
-      << "\tNegative: " << _negativeEventCount << " events" << endl;
-   auto_ptr<unsigned> totalEvents   ( new unsigned);
-   auto_ptr<unsigned> positiveEvents( new unsigned);
-   auto_ptr<unsigned> negativeEvents( new unsigned);
+   auto_ptr<edm::MergeableCounter> positiveEvents( new edm::MergeableCounter );
+   auto_ptr<edm::MergeableCounter> negativeEvents( new edm::MergeableCounter );
 
-   *totalEvents= _totalEventCount;
-   *positiveEvents = _positiveEventCount;
-   *negativeEvents = _negativeEventCount;
+   positiveEvents->value = _positiveEventCount;
+   negativeEvents->value = _negativeEventCount;
 
-   iRun.put(totalEvents, "totalEvents" );
    iRun.put(positiveEvents, "positiveEvents");
    iRun.put(negativeEvents, "negativeEvents");
 }

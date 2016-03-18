@@ -1,8 +1,9 @@
 {
-   "Name" : "Group_Name",
-   "Latex Name": "Group Latex Name",
-   "Sample List":[
-      "sample.json",
-      "sample.json"
-   ]
+   "MyGroup": { 
+      "Latex Name": "Group Latex Name",
+      "Sample List":[
+         "sample.json",
+         "sample.json"
+      ]
+   }
 }

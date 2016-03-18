@@ -33,30 +33,31 @@
 //------------------------------------------------------------------------------
 class SampleMgr : public JsonLoader {
 public:
-   SampleMgr( const std::string& );
+   SampleMgr( const std::string& , const std::string& );
    virtual ~SampleMgr ();
 
    // Access members
-   const std::string& Name() const {return _name; }
-   const std::string& LatexName() const { return _latexname; }
-   const Parameter&   CrossSection() const { return _crossSection; }
-   const Parameter&   SelectionEfficiency() const { return _selectionEff; }
-   const Parameter&   Weight() const { return _weight; }
+   const std::string&  Name()      const {return _name; }
+   const std::string&  LatexName() const { return _latexname; }
+   const Parameter&    CrossSection()        const { return _cross_section; }
+   const Parameter&    KFactor()             const { return _k_factor; }
+   const Parameter&    SelectionEfficiency() const { return _selection_eff;}
    fwlite::ChainEvent& Event() { return _event; }
 
    // Extended functions
    size_t    EventsInFile() { return _event.size(); }
    Parameter ExpectedYield( const double totalLumi ) const;
-
+   Parameter GetSampleWeight( const double ) ;
 
 private:
-   const std::string _name;
-   const std::string _latexname;
-   const Parameter   _crossSection;
-   const Parameter   _selectionEff;
-   const Parameter   _weight;
    fwlite::ChainEvent  _event;
+   const std::string   _name;
+   const std::string   _latexname;
+   const Parameter     _cross_section;
+   const Parameter     _k_factor;
+   const Parameter     _selection_eff; // Caching selection results
 
+   Parameter MakeSelectionEfficiency();
 };
 
 

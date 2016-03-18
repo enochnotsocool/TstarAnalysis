@@ -1,0 +1,4 @@
+<use name="FWCore/FWLite"/>
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/Common"/>
+<bin name="efficiency_test" file="efficiency_test.cc"/>

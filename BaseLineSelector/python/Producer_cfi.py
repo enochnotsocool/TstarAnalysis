@@ -50,13 +50,13 @@ skimmedPatJets = cms.EDFilter(
 #-------------------------------------------------------------------------------
 #   Weight Counter
 #-------------------------------------------------------------------------------
-beforeSelect = cms.EDProducer(
+beforeAny = cms.EDProducer(
     "WeightCounter",
     lhesrc = cms.InputTag("externalLHEProducer"),
     label  = cms.string("Before Any Selection"),
 )
 
-afterSelect = cms.EDProducer(
+afterBaseLine = cms.EDProducer(
     "WeightCounter",
     lhesrc = cms.InputTag("externalLHEProducer"),
     label  = cms.string("After all selections"),

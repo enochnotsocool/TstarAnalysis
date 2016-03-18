@@ -11,12 +11,13 @@
 #include <boost/property_tree/ptree.hpp>
 #include <vector>
 #include <string>
+#include <cstdint>
 // Custom types
 #include "TstarAnalysis/Utils/interface/Parameter.hh"
 
 class JsonLoader{
 public:
-   JsonLoader( const std::string& jsonfile );
+   JsonLoader( const std::string& jsonfile, const std::string& class_label );
    virtual ~JsonLoader();
 
    void Print_Json( const boost::property_tree::ptree& tree, unsigned level = 0 ) const ;
@@ -26,6 +27,7 @@ protected:
    inline const boost::property_tree::ptree& JsonParser() const { return _json_parser; }
    std::vector<std::string> GetStringList( const std::string& ) const;
    std::vector<double>      GetDoubleList( const std::string& ) const;
+   std::vector<uint64_t>    GetUIntList  ( const std::string& ) const;
    Parameter                GetParameter ( const std::string& ) const;
 
 private:

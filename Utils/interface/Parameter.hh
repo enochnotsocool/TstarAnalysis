@@ -29,6 +29,7 @@ public:
    inline double AbsLowerError() const { return _sys_down+_sys_down; }
    inline double RelUpperError() const { return (_stat_up+_sys_up)/_centralValue; }
    inline double RelLowerError() const { return (_stat_down+_sys_down)/_centralValue; }
+   inline double RelAvgError()   const { return (RelUpperError()+RelLowerError()) /2.; }
    inline double AbsStatUpperError() const { return _stat_up; }
    inline double AbsStatLowerError() const { return _stat_down; }
    inline double AbsSysUpperError()  const { return _sys_up ; }

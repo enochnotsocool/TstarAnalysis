@@ -16,8 +16,8 @@ done
 for sample in $(cat Data_List.asc ); do
    echo "working on ${sample}..."
    if [[ $sample == *"Muon"*  ]]; then
-      ./Submit_Sample.sh MuonSignal $sample
+      ./make_scripts.sh MuonSignal $sample
    elif [[ $sample == *"Electron"* ]]; then
-      ./Submit_Sample.sh ElectronSignal $sample
+      ./make_scripts.sh ElectronSignal $sample
    fi
 done

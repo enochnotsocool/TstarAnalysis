@@ -1,0 +1,6 @@
+<use name="TstarAnalysis/Utils"/>
+<use name="TstarAnalysis/TstarMassReco"/>
+<use name="DataFormats/FWLite"/>
+<use name="DataFormats/PatCandidates">
+<use name="SimDataFormats/GeneratorProducts">
+<export><lib name="1"/></export>

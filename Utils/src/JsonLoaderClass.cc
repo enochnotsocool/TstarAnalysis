@@ -17,9 +17,11 @@ using boost::property_tree::ptree;
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
-JsonLoader::JsonLoader( const string& jsonfile )
+JsonLoader::JsonLoader( const string& jsonfile, const string& class_label )
 {
-   boost::property_tree::read_json( jsonfile , _json_parser );
+   ptree file_tree;
+   boost::property_tree::read_json( jsonfile , file_tree );
+   _json_parser = file_tree.get_child( class_label );
 }
 
 JsonLoader::~JsonLoader(){}
@@ -71,6 +73,21 @@ vector<double> JsonLoader::GetDoubleList( const string& name ) const
    }
    return ans;
 }
+
+vector<uint64_t> JsonLoader::GetUIntList( const string& name ) const
+{
+   vector<uint64_t> ans;
+   BOOST_FOREACH( const ptree::value_type& v , _json_parser.get_child(name) ){
+      if( !v.first.empty() ){
+         cerr << "Warning! Skipping over illegal format at branch: (" << name
+              << ")  with index value: (" << v.first.data() << ")" << endl;
+         continue;
+      }
+      ans.push_back( stoul(v.second.data()) );
+   }
+   return ans;
+}
+
 
 Parameter JsonLoader::GetParameter( const string& name ) const
 {
