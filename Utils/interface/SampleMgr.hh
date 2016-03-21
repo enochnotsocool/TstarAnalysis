@@ -37,7 +37,6 @@ public:
    virtual ~SampleMgr ();
 
    // Access members
-   const std::string&  Name()      const {return _name; }
    const std::string&  LatexName() const { return _latexname; }
    const Parameter&    CrossSection()        const { return _cross_section; }
    const Parameter&    KFactor()             const { return _k_factor; }
@@ -46,18 +45,21 @@ public:
 
    // Extended functions
    size_t    EventsInFile() { return _event.size(); }
+   size_t    WeightedEventsInFile() const { return CountSelectedEvent(); }
    Parameter ExpectedYield( const double totalLumi ) const;
    Parameter GetSampleWeight( const double ) ;
 
 private:
    fwlite::ChainEvent  _event;
-   const std::string   _name;
    const std::string   _latexname;
    const Parameter     _cross_section;
    const Parameter     _k_factor;
    const Parameter     _selection_eff; // Caching selection results
 
-   Parameter MakeSelectionEfficiency();
+   Parameter MakeSelectionEfficiency() const ;
+   uint64_t  CountOriginalEvent() const;
+   uint64_t  CountSelectedEvent() const;
+   uint64_t  CountEvent( const std::string& ) const ;
 };
 
 

@@ -1,9 +1,10 @@
 {
-   "MyGroup": { 
+   "MyGroup": {
       "Latex Name": "Group Latex Name",
-      "Sample List":[
-         "sample.json",
-         "sample.json"
+      "Sample Json": "sample.json",
+      "Samples":[
+         "TTJets",
+         "Single_T"
       ]
    }
 }

@@ -23,11 +23,13 @@ int main(int argc, char* argv[]) {
 
    cout << mysample.KFactor().CentralValue() << endl;
    cout << mysample.EventsInFile() << endl;
+   cout << mysample.WeightedEventsInFile() << endl;
    cout << mysample.ExpectedYield( 2.42 ) << endl;
+   cout << mysample.GetSampleWeight( 2.42) << endl;
    int i = 0;
    cout << "entering main loop" << endl;
    for( mysample.Event().toBegin() ; !mysample.Event().atEnd() ; ++mysample.Event() , ++i ){
-      if( i > 10 ){break;}
+      if( i > 1 ){break;}
       cout << "Event" << i << endl;
       Jets.getByLabel( mysample.Event() , "skimmedPatJets" );
       for( const auto& jet : *Jets.product() ){

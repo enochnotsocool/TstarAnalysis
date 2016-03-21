@@ -2,3 +2,4 @@
 <use name="DataFormats/FWLite"/>
 <use name="DataFormats/Common"/>
 <bin name="efficiency_test" file="efficiency_test.cc"/>
+<bin name="counter_read"    file="counter_read.cc"/>

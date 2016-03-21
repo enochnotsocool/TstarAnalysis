@@ -6,10 +6,11 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/Utils/interface/SampleMgr.hh"
+#include "DataFormats/FWLite/interface/Run.h"
 #include "DataFormats/FWLite/interface/Handle.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "DataFormats/Common/interface/MergeableCounter.h"
 
-#include <boost/property_tree/json_parser.hpp>
+#include "TFile.h"
 #include <iostream>
 #include <string>
 
@@ -18,11 +19,10 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
-SampleMgr::SampleMgr( const std::string& filename, const std::string& label ):
-   JsonLoader( filename, label ),
+SampleMgr::SampleMgr( const std::string& filename, const std::string& name ):
+   JsonLoader( filename, name ),
    _event         ( GetStringList("EDM Files" )),
-   _name          ( label ),
-   _latexname     ( JsonParser().get<string>("Latex Name") ),
+   _latexname     ( GetString("Latex Name") ),
    _cross_section ( GetParameter( "Cross Section" )),
    _k_factor      ( GetParameter( "K Factor")),
    _selection_eff ( MakeSelectionEfficiency() )
@@ -42,10 +42,40 @@ Parameter SampleMgr::ExpectedYield( const double totalLumi )const
 
 Parameter SampleMgr::GetSampleWeight( const double totalLumi )
 {
-   return ExpectedYield(totalLumi);
+   return ExpectedYield(totalLumi) * (1/(double)CountSelectedEvent()) ;
 }
 
-Parameter SampleMgr::MakeSelectionEfficiency()
+Parameter SampleMgr::MakeSelectionEfficiency() const
 {
-   return Parameter( 0,0,0);
+   double before = CountOriginalEvent();
+   double after  = CountSelectedEvent();
+   double eff = after / before;
+   double err = sqrt(eff * ( 1 - eff ) / before );
+   return Parameter( eff, err, err );
+}
+
+uint64_t SampleMgr::CountOriginalEvent() const
+{
+   return CountEvent("beforeAny");
+}
+
+uint64_t SampleMgr::CountSelectedEvent() const
+{
+   return CountEvent( GetStaticString("Selection Cut Label") );
+}
+
+uint64_t SampleMgr::CountEvent( const string& name ) const
+{
+   fwlite::Handle<edm::MergeableCounter> positive_count;
+   fwlite::Handle<edm::MergeableCounter> negative_count;
+   uint64_t count = 0 ;
+
+   for( const auto& file: GetStringList("EDM Files") ){
+      fwlite::Run run( TFile::Open(file.c_str()) );
+      positive_count.getByLabel( run , name.c_str() , "positiveEvents" );
+      negative_count.getByLabel( run , name.c_str() , "negativeEvents" );
+      count += positive_count->value;
+      count -= negative_count->value;
+   }
+   return count;
 }

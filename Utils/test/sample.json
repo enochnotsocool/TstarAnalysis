@@ -1,9 +1,10 @@
 {
+   "Selection Cut Label": "afterBaseLine",
+
    "TTJets" : {
       "Latex Name": "LatexName_Content",
-      "Cross Section":        [ 831.76, 19.77,-29.20, 58.24 ,-57.51],
-      "Original Sample Size": [ 10000, 6000, 4000 ],
-      "Sample Weight":        [1.0],
+      "Cross Section":   [ 831.76, 19.77,-29.20, 58.24 ,-57.51],
+      "K Factor":        [1.0],
       "EDM Files" : [
          "edmOut.root"
       ]
@@ -11,8 +12,7 @@
    "Single_T" : {
       "Latex Name":"New Latex Name",
       "Cross Section": [ 1.0 , 1.0 , 1.0 ],
-      "Original Sample Size": [10000,6000,4000],
-      "Sample Weight": [1.2],
+      "K Factor": [1.2],
       "EDM Files" :[
          "edmOut.root"
       ]

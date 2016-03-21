@@ -203,7 +203,6 @@ int main(int argc, char* argv[])
       data_rel_hist->SetLineColor(kBlack);
       data_rel_hist->SetStats(0);
 
-
       // Save and clean up
       c->SaveAs( (hist_name + ".png").c_str() );
       delete pad1;

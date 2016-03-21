@@ -17,11 +17,10 @@ using boost::property_tree::ptree;
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
-JsonLoader::JsonLoader( const string& jsonfile, const string& class_label )
+JsonLoader::JsonLoader( const string& jsonfile, const string& name ):
+   _name( name )
 {
-   ptree file_tree;
-   boost::property_tree::read_json( jsonfile , file_tree );
-   _json_parser = file_tree.get_child( class_label );
+   boost::property_tree::read_json( jsonfile , _json_parser );
 }
 
 JsonLoader::~JsonLoader(){}
@@ -42,15 +41,57 @@ void JsonLoader::Print_Json( const ptree& pt, unsigned level ) const
 }
 
 //------------------------------------------------------------------------------
-//   Helper protected functions
+//   Property Tree Access functions
 //------------------------------------------------------------------------------
-vector<string> JsonLoader::GetStringList( const string& name ) const
+boost::property_tree::ptree&       JsonLoader::ClassInstance()
+{
+   return _json_parser.get_child( _name );
+}
+const boost::property_tree::ptree& JsonLoader::ClassInstance() const
+{
+   return _json_parser.get_child( _name );
+}
+boost::property_tree::ptree&       JsonLoader::JsonParser()
+{
+   return _json_parser;
+}
+const boost::property_tree::ptree& JsonLoader::JsonParser() const
+{
+   return _json_parser;
+}
+
+//------------------------------------------------------------------------------
+//   Static member settings helper functions
+//------------------------------------------------------------------------------
+string JsonLoader::GetStaticString( const string& label ) const
+{
+   return JsonParser().get<string>( label );
+}
+double JsonLoader::GetStaticDouble( const string& label ) const
+{
+   return JsonParser().get<double>( label );
+}
+
+//------------------------------------------------------------------------------
+//   Class Instance member helper functions
+//------------------------------------------------------------------------------
+string JsonLoader::GetString( const string& label ) const
+{
+   return ClassInstance().get<string>( label );
+}
+
+double JsonLoader::GetDouble( const string& label ) const
+{
+   return ClassInstance().get<double>( label );
+}
+
+vector<string> JsonLoader::GetStringList( const string& label ) const
 {
    vector<string> ans;
-   BOOST_FOREACH( const ptree::value_type &v , _json_parser.get_child(name) ){
+   BOOST_FOREACH( const ptree::value_type &v , ClassInstance().get_child(label) ){
       if( !v.first.empty() ){
-         cerr << "Warning! Skipping over illegal format at branch: (" << name
-              << ")  with index value: (" << v.first.data() << ")" << endl;
+         cerr << "Warning! Skipping over illegal format at branch: (" << label
+         << ")  with index value: (" << v.first.data() << ")" << endl;
          continue;
       }
       // cout << v.second.data() << endl;
@@ -59,13 +100,13 @@ vector<string> JsonLoader::GetStringList( const string& name ) const
    return ans;
 }
 
-vector<double> JsonLoader::GetDoubleList( const string& name ) const
+vector<double> JsonLoader::GetDoubleList( const string& label ) const
 {
    vector<double> ans;
-   BOOST_FOREACH( const ptree::value_type &v , _json_parser.get_child(name) ){
+   BOOST_FOREACH( const ptree::value_type &v , ClassInstance().get_child(label) ){
       if( !v.first.empty() ){
-         cerr << "Warning! Skipping over illegal format at branch: (" << name
-              << ")  with index value: (" << v.first.data() << ")" << endl;
+         cerr << "Warning! Skipping over illegal format at branch: (" << label
+         << ")  with index value: (" << v.first.data() << ")" << endl;
          continue;
       }
       // cout << v.second.data() << endl;
@@ -74,13 +115,13 @@ vector<double> JsonLoader::GetDoubleList( const string& name ) const
    return ans;
 }
 
-vector<uint64_t> JsonLoader::GetUIntList( const string& name ) const
+vector<uint64_t> JsonLoader::GetUIntList( const string& label ) const
 {
    vector<uint64_t> ans;
-   BOOST_FOREACH( const ptree::value_type& v , _json_parser.get_child(name) ){
+   BOOST_FOREACH( const ptree::value_type& v , ClassInstance().get_child(label) ){
       if( !v.first.empty() ){
-         cerr << "Warning! Skipping over illegal format at branch: (" << name
-              << ")  with index value: (" << v.first.data() << ")" << endl;
+         cerr << "Warning! Skipping over illegal format at branch: (" << label
+         << ")  with index value: (" << v.first.data() << ")" << endl;
          continue;
       }
       ans.push_back( stoul(v.second.data()) );
@@ -89,9 +130,9 @@ vector<uint64_t> JsonLoader::GetUIntList( const string& name ) const
 }
 
 
-Parameter JsonLoader::GetParameter( const string& name ) const
+Parameter JsonLoader::GetParameter( const string& label ) const
 {
-   vector<double> input = GetDoubleList( name );
+   vector<double> input = GetDoubleList( label );
    input.resize( 5 , 0 );
    if( input[0] == 0 ){
       input[0] = 1;
