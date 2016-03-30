@@ -5,8 +5,6 @@
    "Selection Cut Label":"afterBaseLine",
    "Total Luminosity": 2256,
 
-
-
    "___Comment___":"""-----------------------------------------------------------
    #    Data sector
    -----------------------------------------------------------------------------""",
@@ -15,7 +13,7 @@
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
-         "sample/MuonSignal/SingleMuon_Run2015D-16Dec2015-v1.root"
+         "sample/ElectronSignal/SingleElectron_Run2015D-16Dec2015-v1.root"
       ]
    },
    "Data_2":{
@@ -23,7 +21,7 @@
       "Cross Section": [0,0,0],
       "K Factor":[1.0],
       "EDM Files":[
-         "sample/MuonSignal/SingleMuon_Run2015C_25ns-16Dec2015-v1.root"
+         "sample/ElectronSignal/SingleElectron_Run2015C_25ns-16Dec2015-v1.root"
       ]
    },
 
@@ -37,7 +35,7 @@
       "Cross Section":        [ 831.76 , 54.84, 64.24 ],
       "K Factor":        [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root"
+         "sample/ElectronSignal/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.root"
       ]
    },
 
@@ -50,7 +48,7 @@
       "Cross Section":        [ 3.36, 0.13, 0.12 ],
       "K Factor":        [1.0],
       "EDM Files":[
-         "sample/MuonSignal/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.root"
+         "sample/ElectronSignal/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.root"
       ]
    },
    "SingleT_T": {
@@ -58,7 +56,7 @@
       "Cross Section":        [ 70.69, 2.94, 2.51 ],
       "K Factor":        [1.0],
       "EDM Files":[
-         "sample/MuonSignal/ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.root"
+         "sample/ElectronSignal/ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.root"
       ]
    },
    "SingleT_TW": {
@@ -66,7 +64,7 @@
       "Cross Section":        [ 35.85, 2.60, 2.60 ],
       "K Factor":        [1.0],
       "EDM Files":[
-         "sample/MuonSignal/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.root"
+         "sample/ElectronSignal/ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.root"
       ]
    },
    "SingleTbar_TW": {
@@ -74,7 +72,7 @@
       "Cross Section":        [ 35.85, 2.60, 2.60 ],
       "K Factor":        [1.0],
       "EDM Files":[
-         "sample/MuonSignal/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.root"
+         "sample/ElectronSignal/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1.root"
       ]
    },
 
@@ -88,7 +86,7 @@
       "Cross Section":[ 1345, 1.2 ,1.2 ],
       "K Factor":     [1.21],
       "EDM Files":[
-         "sample/MuonSignal/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "WJets_200_400": {
@@ -96,7 +94,7 @@
       "Cross Section": [ 359.7, 0.2, 0.2 ],
       "K Factor":      [1.21],
       "EDM Files":[
-         "sample/MuonSignal/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "WJets_400_600": {
@@ -104,7 +102,7 @@
       "Cross Section":        [ 48.91 , 0.072, 0.072 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "sample/MuonSignal/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "WJets_600_800": {
@@ -112,7 +110,7 @@
       "Cross Section":        [ 12.05, 0.0073, 0.0073 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "sample/MuonSignal/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "WJets_800_1200": {
@@ -120,7 +118,7 @@
       "Cross Section":        [ 6.501, 0.0017, 0.0017 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "sample/MuonSignal/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "WJets_1200_2500": {
@@ -128,7 +126,7 @@
       "Cross Section":        [ 1.329, 0.0025, 0.0025 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "sample/MuonSignal/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "WJets_2500_Inf": {
@@ -136,7 +134,7 @@
       "Cross Section":        [ 0.03216, 0.000104, 0.000104 ],
       "K Factor":        [1.21],
       "EDM Files":[
-         "sample/MuonSignal/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "ZJets_100_200": {
@@ -144,7 +142,7 @@
       "Cross Section": [ 147.40, 0.09, 0.09],
       "K Factor": [1.23],
       "EDM Files":[
-         "sample/MuonSignal/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "ZJets_200_400": {
@@ -152,7 +150,7 @@
       "Cross Section": [40.99, 0.04, 0.04],
       "K Factor": [1.23],
       "EDM Files":[
-         "sample/MuonSignal/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "ZJets_400_600": {
@@ -160,7 +158,7 @@
       "Cross Section": [ 5.678, 0.005, 0.005 ],
       "K Factor": [1.23],
       "EDM Files":[
-         "sample/MuonSignal/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
    "ZJets_600_Inf": {
@@ -168,7 +166,7 @@
       "Cross Section": [ 2.189, 0.002, 0.002 ],
       "K Factor": [1.23],
       "EDM Files":[
-         "sample/MuonSignal/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
+         "sample/ElectronSignal/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"
       ]
    },
 
@@ -184,7 +182,7 @@
       "Cross Section": [ 118.7, 2.97, 2.61],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/WW_TuneCUETP8M1_13TeV-pythia8.root"
+         "sample/ElectronSignal/WW_TuneCUETP8M1_13TeV-pythia8.root"
       ]
    },
    "WZ": {
@@ -192,7 +190,7 @@
       "Cross Section": [ 49.75, 38.3, 2.99 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/WZ_TuneCUETP8M1_13TeV-pythia8.root"
+         "sample/ElectronSignal/WZ_TuneCUETP8M1_13TeV-pythia8.root"
       ]
    },
    "ZZ": {
@@ -200,7 +198,7 @@
       "Cross Section": [ 16.91, 0.54, 0.41 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/ZZ_TuneCUETP8M1_13TeV-pythia8.root"
+         "sample/ElectronSignal/ZZ_TuneCUETP8M1_13TeV-pythia8.root"
       ]
    },
 
@@ -213,7 +211,7 @@
       "Cross Section": [ 0.2043,0.0020,0.0020 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.root"
+         "sample/ElectronSignal/TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.root"
       ]
    },
    "TTW_Quark": {
@@ -221,7 +219,7 @@
       "Cross Section": [ 0.4062, 0.0021, 0.0021],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.root"
+         "sample/ElectronSignal/TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8.root"
       ]
    },
    "TTZ_Lepton": {
@@ -229,7 +227,7 @@
       "Cross Section": [0.2529,0.0004,0.0004 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.root"
+         "sample/ElectronSignal/TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8.root"
       ]
    },
    "TTZ_Quark": {
@@ -237,7 +235,7 @@
       "Cross Section": [ 0.5297, 0.00008, 0.00008 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.root"
+         "sample/ElectronSignal/TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8.root"
       ]
    },
 
@@ -247,82 +245,82 @@
    -----------------------------------------------------------------------------""",
    "tstar_M700": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 700GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10.0, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-700_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M800": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 800GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10.0 , 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-800_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M900": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 900GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10.0, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-900_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M1000": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1000 GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-1000_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M1100": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1100 GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-1100_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M1200": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1200 GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-1200_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M1300": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1300 GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-1300_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M1400": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1300GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-1400_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M1500": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1500 GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-1500_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    },
    "tstar_M1600": {
       "Latex Name" : "$t^{*}\\bar{t}^{*}$ ($M_{t^{*}}$ = 1600 GeV/c$^{2}$ )",
-      "Cross Section": [10.0, 0, 0 ],
+      "Cross Section": [ 10, 0, 0 ],
       "K Factor": [1.0],
       "EDM Files":[
-         "sample/MuonSignal/TstarTstarToTgluonTgluon_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
+         "sample/ElectronSignal/TstarTstarToTgluonTgluon_M-1600_TuneCUETP8M1_13TeV-madgraph-pythia8.root"
       ]
    }
 }

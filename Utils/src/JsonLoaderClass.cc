@@ -17,10 +17,11 @@ using boost::property_tree::ptree;
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
-JsonLoader::JsonLoader( const string& jsonfile, const string& name ):
+ptree JsonLoader::_json_parser ; // Initializing static member
+
+JsonLoader::JsonLoader( const string& name ):
    _name( name )
 {
-   boost::property_tree::read_json( jsonfile , _json_parser );
 }
 
 JsonLoader::~JsonLoader(){}
@@ -43,7 +44,12 @@ void JsonLoader::Print_Json( const ptree& pt, unsigned level ) const
 //------------------------------------------------------------------------------
 //   Property Tree Access functions
 //------------------------------------------------------------------------------
-boost::property_tree::ptree&       JsonLoader::ClassInstance()
+void JsonLoader::LoadJsonFile( const std::string& filename )
+{
+   read_json( filename , _json_parser );
+}
+
+boost::property_tree::ptree&  JsonLoader::ClassInstance()
 {
    return _json_parser.get_child( _name );
 }
@@ -51,11 +57,7 @@ const boost::property_tree::ptree& JsonLoader::ClassInstance() const
 {
    return _json_parser.get_child( _name );
 }
-boost::property_tree::ptree&       JsonLoader::JsonParser()
-{
-   return _json_parser;
-}
-const boost::property_tree::ptree& JsonLoader::JsonParser() const
+boost::property_tree::ptree& JsonLoader::JsonParser()
 {
    return _json_parser;
 }
@@ -63,11 +65,11 @@ const boost::property_tree::ptree& JsonLoader::JsonParser() const
 //------------------------------------------------------------------------------
 //   Static member settings helper functions
 //------------------------------------------------------------------------------
-string JsonLoader::GetStaticString( const string& label ) const
+string JsonLoader::GetStaticString( const string& label )
 {
    return JsonParser().get<string>( label );
 }
-double JsonLoader::GetStaticDouble( const string& label ) const
+double JsonLoader::GetStaticDouble( const string& label )
 {
    return JsonParser().get<double>( label );
 }
@@ -133,12 +135,12 @@ vector<uint64_t> JsonLoader::GetUIntList( const string& label ) const
 Parameter JsonLoader::GetParameter( const string& label ) const
 {
    vector<double> input = GetDoubleList( label );
-   input.resize( 5 , 0 );
+   input.resize( 3 , 0 );
    if( input[0] == 0 ){
       input[0] = 1;
    }
    if( input[1] != 0 && input[2] == 0 ){
       input[2] = input[1];
    }
-   return Parameter( input[0], input[1], input[2], input[3], input[4] );
+   return Parameter( input[0], input[1], input[2] );
 }

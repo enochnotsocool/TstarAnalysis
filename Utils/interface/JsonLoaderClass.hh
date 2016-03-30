@@ -17,22 +17,24 @@
 
 class JsonLoader{
 public:
-   JsonLoader( const std::string& jsonfile, const std::string& name );
+   JsonLoader( const std::string& name );
    virtual ~JsonLoader();
+
+   // Setting up which json file to read
+   static void LoadJsonFile( const std::string& );
 
    const std::string& Name() const { return _name; }
    void Print_Json( const boost::property_tree::ptree& tree, unsigned level = 0 ) const ;
 
 protected:
    // Accesing to original tree
+   static boost::property_tree::ptree&       JsonParser();
    boost::property_tree::ptree&       ClassInstance();
    const boost::property_tree::ptree& ClassInstance() const;
-   boost::property_tree::ptree&       JsonParser();
-   const boost::property_tree::ptree& JsonParser() const;
 
    // Prebuild helper functions
-   std::string GetStaticString( const std::string& ) const ;
-   double      GetStaticDouble( const std::string& ) const ;
+   static std::string GetStaticString( const std::string& );
+   static double      GetStaticDouble( const std::string& );
 
    std::string GetString( const std::string& ) const ;
    double      GetDouble( const std::string& ) const ;
@@ -43,7 +45,7 @@ protected:
 
 private:
    const std::string _name;
-   boost::property_tree::ptree _json_parser;
+   static boost::property_tree::ptree _json_parser;
 };
 
 #endif /* end of include guard: __JSONLOADER_HH__ */

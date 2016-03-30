@@ -5,19 +5,15 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/Utils/interface/SampleMgr.hh"
-#include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
+#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
+#include "TstarAnalysis/CompareDataMC/interface/PlotConfig.hh"
 
 #include "RooFit.h"
 #include "RooRealVar.h"
 #include "RooDataSet.h"
-#include "RooGenericPdf.h"
-#include "RooKeysPdf.h"
-#include "RooPlot.h"
+#include "RooWorkspace.h"
 
-#include "TCanvas.h"
 
 #include <iostream>
 #include <vector>
@@ -25,118 +21,144 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
-//   Defining constants
+//   External functions see src/RooFit_MCTemplate.cc
 //------------------------------------------------------------------------------
-static const double total_lumi = 24.25;
-static const double minmass = 0;
-static const double maxmass = 3000;
-static const double minweight = -10000;
-static const double maxweight = 10000;
-static RooRealVar x("x", "t+g Mass" , minmass , maxmass );
-static RooRealVar w("w" , "event weight", minweight , maxweight );
-
-//------------------------------------------------------------------------------
-//   Helper funtions
-//------------------------------------------------------------------------------
-void FillDataSet( RooDataSet&, SampleMgr& , const double total_lumi );
+extern void MakeBGFromMC( SampleRooFitMgr& );
+extern void MakeSignalPdf( SampleRooFitMgr& );
+extern void MakeTemplatePlots( SampleRooFitMgr& , SampleRooFitMgr&, SampleRooFitMgr& );
 
 //------------------------------------------------------------------------------
 //   Begin control flow
 //------------------------------------------------------------------------------
-int main(int argc, char const *argv[]) {
-   cout << "Hello World!" << endl;
-
-   vector<SampleMgr> background;
-   background.push_back( SampleMgr( "data/MuonSignal.json", "TTJets" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "SingleT_S" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "SingleT_T" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "SingleT_TW" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "SingleTbar_TW" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WJets_100_200" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WJets_200_400" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WJets_400_600" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WJets_600_800" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WJets_800_1200" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WJets_1200_2500" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WJets_2500_Inf" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "ZJets_100_200" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "ZJets_200_400" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "ZJets_400_600" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "ZJets_600_Inf" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WW" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "WZ" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "ZZ" ) );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "TTW_Lepton") );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "TTW_Quark") );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "TTZ_Lepton") );
-   background.push_back( SampleMgr( "data/MuonSignal.json", "TTZ_Quark") );
-
-   RooDataSet background_dataset( "bg", "background" , RooArgSet(x,w) , RooFit::WeightVar(w) );
-   for( auto& sample : background ){
-      FillDataSet( background_dataset, sample , total_lumi );
+int main(int argc, char* argv[])
+{
+   if( argc != 2 ){
+      cerr << "Error! Expected exactly one arguement!" << endl;
+      return 1;
    }
-   // Fitting back ground to fermi function
-   RooRealVar a("a","a", 0 , 10000 );
-   RooRealVar m("m","m", 0, 10000);
-   RooRealVar b("b","b", 0 ,100000);
-   RooGenericPdf* bg_fit = new RooGenericPdf(
-      "bg_fit" , "bg_fit",
-      "a/(1+exp(x-m)/b)",
-      RooArgSet(a,x,m,b) );
-   bg_fit->fitTo( background_dataset , RooFit::Save() , RooFit::SumW2Error(kTRUE) );
+   const string channel = argv[1];
+   SetChannelType( argv[1] );
+   SampleRooFitMgr::LoadJsonFile( GetJsonFile() );
+   SampleRooFitMgr::x().setRange("FitRange" , 300 , 3000 );
 
-   // Making confirmation plots
-   RooPlot* frame = x.frame();
-   background_dataset.plotOn( frame );
-   bg_fit->plotOn(frame);
+   //------------------------------------------------------------------------------
+   //   Delcaring sample
+   //------------------------------------------------------------------------------
+   SampleRooFitMgr data( "data" , { "Data_1", "Data_2" } );
 
-   TCanvas* c1 = new TCanvas("c","c");
-   frame->Draw();
-   c1->SaveAs("test.png");
-   delete c1;
+   SampleRooFitMgr bg( "bg" , {
+      "TTJets",
+      "SingleT_S", "SingleT_T", "SingleT_TW", "SingleTbar_TW",
+      "WJets_100_200", "WJets_200_400" ,"WJets_400_600" ,"WJets_600_800" ,"WJets_800_1200", "WJets_1200_2500", "WJets_2500_Inf",
+      "ZJets_100_200", "ZJets_200_400", "ZJets_400_600", "ZJets_600_Inf",
+      "WW" ,"WZ" , "ZZ",
+      "TTW_Lepton",  "TTW_Quark" ,   "TTZ_Lepton",   "TTZ_Quark" } );
+
+   vector<SampleRooFitMgr*>  signal_list;
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M700" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M800" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M900" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M1000" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M1100" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M1200" ));
+   // signal_list.push_back( new SampleRooFitMgr( "tstar_M1300" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M1400" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M1500" ));
+   signal_list.push_back( new SampleRooFitMgr( "tstar_M1600" ));
 
 
+   //------------------------------------------------------------------------------
+   //   Fitting background PDF
+   //------------------------------------------------------------------------------
+   MakeBGFromMC( bg );
 
+   //------------------------------------------------------------------------------
+   //   Fitting signal to PDF
+   //------------------------------------------------------------------------------
+   for( auto& signal : signal_list ){
+      MakeSignalPdf( *signal );
+   }
 
-   // Making signal MC objects
-   SampleMgr signal( "data/MuonSignal_SignalMC.json" , "tstar_M1000" );
-   RooDataSet signal_dataset( "sig", "signal" , RooArgSet(x,w), RooFit::WeightVar(w) );
-   FillDataSet( signal_dataset, signal, total_lumi );
-   RooKeysPdf* signal_fit = new RooKeysPdf( "signal_fit" , "signal_fit" , x , signal_dataset );
+   //------------------------------------------------------------------------------
+   //   Making confirmation plots
+   //------------------------------------------------------------------------------
+   MakeTemplatePlots( data, bg, *(signal_list.front()) );
 
-   RooPlot* frame2 = x.frame();
-   signal_fit->plotOn( frame2 );
+   //------------------------------------------------------------------------------
+   //   Saving all relavent obejcts by RooWorkSpace
+   //------------------------------------------------------------------------------
+   const string roofit_file = GetRooFitObj_Template_File();
+   const string ws_name = "wspace";
+   RooWorkspace ws( ws_name.c_str() , ws_name.c_str() );
+   RooDataSet* data_selc = data.MakeReduceDataSet( "selc" , RooFit::CutRange("FitRange") );
+   ws.import( *data_selc );
+   ws.import( *(bg.GetPdfFromAlias("fit")) );
+   for( auto& signal : signal_list ){
+      ws.import( *(signal->GetPdfFromAlias("fit")) );
+   }
+   ws.writeToFile( roofit_file.c_str() );
 
-   TCanvas* c2 = new TCanvas("c2","c2");
-   frame2->Draw();
-   c2->SaveAs("test2.png");
+   //------------------------------------------------------------------------------
+   //   Making Higgs Combine datacards
+   //------------------------------------------------------------------------------
+   for( auto& signal: signal_list ){
+      const string cardfile_name = GetTemplate_CardFile( signal->Name() );
+      RooDataSet* data_obs       = data.GetReduceDataSet("selc");
+      RooDataSet* signal_dataset = signal->GetReduceDataSet("selc");
+      RooAbsPdf*  signal_pdf     = signal->GetPdfFromAlias("fit");
+      RooAbsPdf*  bg_pdf         = bg.GetPdfFromAlias("fit");
 
+      FILE* cardfile = fopen( cardfile_name.c_str() , "w" );
+
+      // Priting header
+      fprintf( cardfile , "imax 1\n" );
+      fprintf( cardfile , "jmax *\n" );
+      fprintf( cardfile , "kmax *\n" );
+      fprintf( cardfile , "----------------------------------------\n" );
+
+      // Printing objects
+      fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
+            "bg",
+            GetChannel().c_str() ,
+            roofit_file.c_str() ,
+            ws_name.c_str(),
+            bg_pdf->GetName() );
+      fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
+            "sig",
+            GetChannel().c_str() ,
+            roofit_file.c_str() ,
+            ws_name.c_str(),
+            signal_pdf->GetName() );
+      fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
+            "data_obs",
+            GetChannel().c_str() ,
+            roofit_file.c_str() ,
+            ws_name.c_str(),
+            data_obs->GetName() );
+      fprintf( cardfile , "----------------------------------------\n" );
+
+      // Printing data correspondence
+      fprintf( cardfile , "%12s %s\n" , "bin" , GetChannel().c_str() );
+      fprintf( cardfile , "%12s %lf\n" , "observation" , data_obs->sumEntries() );
+      fprintf( cardfile , "----------------------------------------\n" );
+
+      // Printing expected
+      fprintf( cardfile , "%12s %15s %15s\n" , "bin"     , GetChannel().c_str(), GetChannel().c_str() );
+      fprintf( cardfile , "%12s %15s %15s\n" , "process" , "sig", "bg" );
+      fprintf( cardfile , "%12s %15s %15s\n" , "process" , "-1" , "1" );
+      fprintf( cardfile , "%12s %15lf %15lf\n" , "rate",
+            signal_dataset->sumEntries(),
+            data_obs->sumEntries()
+         );
+
+      // Listing Nuisance parameters
+      fprintf( cardfile , "----------------------------------------\n" );
+      const string sig_unc = "1.05";
+      fprintf( cardfile, "%8s lnN %15s %15s\n" , "Lumi"   , "1.05"          , "1.05" );
+      fprintf( cardfile, "%8s lnN %15s %15s\n" , "sig_unc", sig_unc.c_str() , "--"   );
+      fprintf( cardfile, "%8s lnN %15s %15s\n" , "bg_unc" , "--"            , "1.05" );
+      fclose( cardfile );
+   }
 
    return 0;
-}
-
-
-//------------------------------------------------------------------------------
-//   Helper function implementation
-//------------------------------------------------------------------------------
-void FillDataSet( RooDataSet& dataset , SampleMgr& sample , const double total_lumi )
-{
-   static fwlite::Handle<vector<pat::Jet>> jetHandle;
-   static fwlite::Handle<LHEEventProduct>  lheHandle;
-   const double sample_weight = total_lumi > 0 ? sample.GetSampleWeight( total_lumi ) : 1 ;
-   LOOP_EVENT( sample.Event() ){
-      jetHandle.getByLabel( sample.Event() , "skimmedPatJets" );
-      lheHandle.getByLabel( sample.Event() , "externalLHEProducer" );
-
-      double tstarMass = jetHandle->front().pt() ;
-      double event_weight = 1.0 ;
-      if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ) { event_weight = -1.; }
-      double weight = event_weight * sample_weight ;
-      if( minmass <=tstarMass && tstarMass <= maxmass  &&
-         minweight <= weight && weight <= maxweight ){
-            x = tstarMass;
-            dataset.add( RooArgSet(x) , weight );
-      }
-   }
-
 }

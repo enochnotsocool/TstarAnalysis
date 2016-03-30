@@ -1,11 +1,11 @@
 /*******************************************************************************
  *
- *  Filename    : KinematicCompareHist.cc
- *  Description : Defining histograms and fill methods
+ *  Filename    : SampleHistMgr.cc
+ *  Description : Implementation for sample Mgr with histograms
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/CompareDataMC/interface/KinematicCompareHist.hh"
+#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hh"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
@@ -14,34 +14,34 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "TstarAnalysis/TstarMassReco/interface/ChiSquareResult.h"
 
+#include <iostream>
+#include <stdlib.h>
 using namespace std;
 
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
-KinematicCompareHist::KinematicCompareHist( SampleMgr& sample , const double total_lumi ):
-   _name( sample.Name() ),
-   _sample_ref( &sample )
+SampleHistMgr::SampleHistMgr( const string& name, const double total_lumi ):
+   SampleMgr( name )
 {
    _histlist.clear();
-   // Defining Histograms
-   // Format
-   // Label , Title , Xaxis , X units, binCount, x_lower, x_upper
-   AddHist( "LepPt"     , "Lepton Transverse Momentum"     , "L_{P_{T}}"          , "GeV/c"   , 50  , 0    , 500. );
-   AddHist( "LepEta"    , "Lepton #eta"                    , "L_#eta"             , ""        , 50  , -2.5 , 2.5  );
-   AddHist( "Jet1Pt"    , "Leading Jet P_{T}"              , "J_{1.P_{T}}"        , "GeV/c"   , 50  , 0    , 500. );
-   AddHist( "Jet1Eta"   , "Leading Jet #eta"               , "J_{1.#eta}"         , ""        , 50  , -2.5 , 2.5  );
-   AddHist( "JetNum"    , "Number of Jets"                 , "Number of Jets"     , ""        , 6   , 4    , 10   );
-   AddHist( "MET"       , "Missing Transverse Energy"      , "Missing E_{T}"      , "GeV"     , 50  , 0    , 500. );
-   AddHist( "METPhi"    , "Missing Transverse Energy"      , "Missing E_{T} #phi" , ""        , 6.8 , 0    , 6.28 );
-   AddHist( "TstarMass" , "Mass of t+g system"             , "M_{t+g}"            , "GeV/c^2" , 50  , 0    , 3000 );
-   AddHist( "ChiSq"     , "#chi^{2} of best configuration" , "#chi^{2}"           , ""        , 50  , 0    , 30000 );
+   AddHist( "LepPt"     , "Lepton {P_{T}}"           , "GeV/c"   , 48 , 20   , 500. );
+   AddHist( "LepEta"    , "Lepton #eta"              , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "Jet1Pt"    , "First Leading Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "Jet2Pt"    , "Second Leading Jet P_{T}" , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "Jet1Eta"   , "First Leading Jet #eta"   , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "Jet2Eta"   , "Second Leading Jet #eta"  , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "JetNum"    , "Number of Jets"           , ""        , 5  , 5    , 12   );
+   AddHist( "MET"       , "Missing E_{T}"            , "GeV"     , 50 , 0    , 500. );
+   AddHist( "METPhi"    , "Missing E_{T} #phi"       , ""        , 96 , -3.2 , 6.4  );
+   AddHist( "TstarMass" , "M_{t+g}"                  , "GeV/c^2" , 50 , 0    , 2000 );
+   AddHist( "ChiSq"     , "#chi^{2}"                 , ""        , 50 , 0    , 10000 );
 
-   // Filling histogram with sample
-   FillHistograms( sample , total_lumi );
+   FillHistograms( total_lumi );
 }
 
-void KinematicCompareHist::FillHistograms( SampleMgr& sample, const double total_lumi )
+
+void SampleHistMgr::FillHistograms( const double total_lumi )
 {
    fwlite::Handle<vector<pat::MET>>      metHandle;
    fwlite::Handle<vector<pat::Jet>>      jetHandle;
@@ -52,32 +52,31 @@ void KinematicCompareHist::FillHistograms( SampleMgr& sample, const double total
 
    double sample_weight;
    if( total_lumi > 0 ){
-      sample_weight = sample.GetSampleWeight(total_lumi);
+      sample_weight = GetSampleWeight(total_lumi);
    } else {
       sample_weight = 1.0; // For running on data
    }
 
    unsigned i = 0;
-   LOOP_EVENT( sample.Event() ){
-      cout << "\rWorking on sample (" << sample.Name()
-           << ") at Event: [" << ++i  << "/" << sample.Event().size() << "]"<< flush  ;
+   LOOP_EVENT( Event() ){
+      printf( "\rSample %-15s, Event[%u/%llu]..." ,
+         Name().c_str(),
+         ++i ,
+         Event().size()
+      );
+      fflush(stdout);
 
-      metHandle.getByLabel(      sample.Event() , "slimmedMETs"    );
-      jetHandle.getByLabel(      sample.Event() , "skimmedPatJets" );
-      muonHandle.getByLabel(     sample.Event() , "skimmedPatMuons" );
-      electronHandle.getByLabel( sample.Event() , "skimmedPatElectrons" );
-      chisqHandle.getByLabel(    sample.Event() , "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
-
-      if( total_lumi > 0 ){
-         lheHandle.getByLabel(      sample.Event() , "externalLHEProducer" );
-      }
+      metHandle.getByLabel(      Event() , "slimmedMETs"    );
+      jetHandle.getByLabel(      Event() , "skimmedPatJets" );
+      muonHandle.getByLabel(     Event() , "skimmedPatMuons" );
+      electronHandle.getByLabel( Event() , "skimmedPatElectrons" );
+      chisqHandle.getByLabel(    Event() , "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
 
       double event_weight = 1.;
       if( total_lumi > 0 ){
+         lheHandle.getByLabel( Event() , "externalLHEProducer" );
          if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ){
             event_weight = -1. ;
-         } else {
-            event_weight = 1. ;
          }
       }
       double total_weight = event_weight * sample_weight ;
@@ -91,8 +90,11 @@ void KinematicCompareHist::FillHistograms( SampleMgr& sample, const double total
          GetHist("LepEta")->Fill( el.eta(), total_weight );
       }
 
-      GetHist("JetNum")->Fill( jetHandle->size()        , total_weight );
-      GetHist("Jet1Pt")->Fill( jetHandle->front().pt()  , total_weight );
+      GetHist("JetNum")->Fill( jetHandle->size()       , total_weight );
+      GetHist("Jet1Pt")->Fill( jetHandle->at(0).pt()   , total_weight );
+      GetHist("Jet1Eta")->Fill( jetHandle->at(0).eta() , total_weight );
+      GetHist("Jet2Pt")->Fill( jetHandle->at(1).pt()   , total_weight );
+      GetHist("Jet2Eta")->Fill( jetHandle->at(1).eta() , total_weight );
 
       GetHist("MET")->Fill( metHandle->front().pt()     , total_weight );
       GetHist("METPhi")->Fill( metHandle->front().phi() , total_weight );
@@ -101,21 +103,20 @@ void KinematicCompareHist::FillHistograms( SampleMgr& sample, const double total
       GetHist("ChiSq")->Fill( chisqHandle->ChiSquare()     , total_weight );
    }
    cout << "Done!" << endl;
+
 }
 
-
 //------------------------------------------------------------------------------
-//   Helper/Debug functions
+//   House keeping functions
 //------------------------------------------------------------------------------
-KinematicCompareHist::~KinematicCompareHist()
+SampleHistMgr::~SampleHistMgr()
 {
-   // for( auto& hist : _histlist ){ delete hist; }
-   // _histlist.clear();
+   for( auto& hist : _histlist ){ delete hist; }
+   _histlist.clear();
 }
 
-void KinematicCompareHist::AddHist(
+void SampleHistMgr::AddHist(
    const string& label,
-   const string& title,
    const string& x_label,
    const string& x_unit,
    const int  binCount,
@@ -132,16 +133,15 @@ void KinematicCompareHist::AddHist(
    if( x_unit != "" ){
       x_title += " [" + x_unit + "]" ;
    }
-   const string hist_name = _name + label ;
-   const string hist_title = title +";" + x_title + ";" + y_title ;
-
+   const string hist_name = Name() + label ;
+   const string hist_title = label +";" + x_title + ";" + y_title ;
    _histlist.push_back( new TH1D( hist_name.c_str(), hist_title.c_str(), binCount, x_lower, x_upper ) );
 }
 
-TH1D* KinematicCompareHist::GetHist( const std::string& name )
+TH1D* SampleHistMgr::GetHist( const std::string& name )
 {
    for( auto hist : _histlist ){
-      if( (_name + name) == hist->GetName()){
+      if( (Name() + name) == hist->GetName()){
          return hist;
       }
    }
@@ -149,18 +149,18 @@ TH1D* KinematicCompareHist::GetHist( const std::string& name )
    return NULL ;
 }
 
-vector<string> KinematicCompareHist::AvailableHistList() const
+vector<string> SampleHistMgr::AvailableHistList() const
 {
    vector<string> ans;
    for( const auto& hist : _histlist ){
       string name = hist->GetName();
-      name.erase( 0 , _name.length() );
+      name.erase( 0 , Name().length() );
       ans.push_back( name );
    }
    return ans;
 }
 
-void KinematicCompareHist::SetColor( const Color_t& x )
+void SampleHistMgr::SetColor( const Color_t& x )
 {
    for( auto hist : _histlist ){
       hist->SetFillColor( x );

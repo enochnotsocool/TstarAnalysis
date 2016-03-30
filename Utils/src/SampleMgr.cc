@@ -19,8 +19,8 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Constructor and desctructor
 //------------------------------------------------------------------------------
-SampleMgr::SampleMgr( const std::string& filename, const std::string& name ):
-   JsonLoader( filename, name ),
+SampleMgr::SampleMgr( const std::string& name ):
+   JsonLoader( name ),
    _event         ( GetStringList("EDM Files" )),
    _latexname     ( GetString("Latex Name") ),
    _cross_section ( GetParameter( "Cross Section" )),
@@ -31,6 +31,14 @@ SampleMgr::SampleMgr( const std::string& filename, const std::string& name ):
 
 SampleMgr::~SampleMgr()
 {}
+
+//------------------------------------------------------------------------------
+//   Get Static settings
+//------------------------------------------------------------------------------
+double SampleMgr::TotalLuminosity()
+{
+   return GetStaticDouble("Total Luminosity");
+}
 
 //------------------------------------------------------------------------------
 //   Computation results
@@ -49,8 +57,8 @@ Parameter SampleMgr::MakeSelectionEfficiency() const
 {
    double before = CountOriginalEvent();
    double after  = CountSelectedEvent();
-   double eff = after / before;
-   double err = sqrt(eff * ( 1 - eff ) / before );
+   double eff = after/before;
+   double err = sqrt(eff*(1-eff)/before);
    return Parameter( eff, err, err );
 }
 

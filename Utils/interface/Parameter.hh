@@ -10,30 +10,26 @@
 #ifndef __PARAMETER_HH__
 #define __PARAMETER_HH__
 
+#include <string>
+
 class Parameter {
 public:
    Parameter();
    Parameter(
       const double central ,
-      const double stat_up ,
-      const double stat_down,
-      const double sys_up = 0 ,  // Assuming no systematic error by default
-      const double sys_down = 0);
+      const double error_up ,
+      const double error_down );
    Parameter( const Parameter& );
 
    virtual ~Parameter ();
 
    // Basic access functions
    inline double CentralValue() const { return _centralValue; }
-   inline double AbsUpperError() const { return _stat_up+_sys_up; }
-   inline double AbsLowerError() const { return _sys_down+_sys_down; }
-   inline double RelUpperError() const { return (_stat_up+_sys_up)/_centralValue; }
-   inline double RelLowerError() const { return (_stat_down+_sys_down)/_centralValue; }
+   inline double AbsUpperError() const { return _error_up; }
+   inline double AbsLowerError() const { return _error_down; }
+   inline double RelUpperError() const { return _error_up/_centralValue; }
+   inline double RelLowerError() const { return _error_down/_centralValue; }
    inline double RelAvgError()   const { return (RelUpperError()+RelLowerError()) /2.; }
-   inline double AbsStatUpperError() const { return _stat_up; }
-   inline double AbsStatLowerError() const { return _stat_down; }
-   inline double AbsSysUpperError()  const { return _sys_up ; }
-   inline double AbsSysLowerError()  const { return _sys_down; }
 
    // Arithmatics
    Parameter& operator=( const Parameter& );
@@ -48,12 +44,14 @@ public:
    // Converstion operatos
    inline operator double() const{ return _centralValue; }
 
+   // Output
+   std::string LatexFormat() const;
+   std::string DataCardFormat() const;
+
 private:
    double _centralValue;
-   double _stat_up;
-   double _stat_down;
-   double _sys_up;
-   double _sys_down;
+   double _error_up;
+   double _error_down;
 
 };
 

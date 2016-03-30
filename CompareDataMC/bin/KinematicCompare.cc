@@ -5,144 +5,131 @@
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
-#include "TstarAnalysis/Utils/interface/SampleMgr.hh"
-#include "TstarAnalysis/CompareDataMC/interface/KinematicCompareHist.hh"
+#include "TstarAnalysis/CompareDataMC/interface/SampleHistMgr.hh"
+#include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "THStack.h"
 #include "TColor.h"
+#include "TLatex.h"
+#include "TLine.h"
 
 #include <boost/range/adaptor/reversed.hpp>
 #include <iostream>
 using namespace std;
 
+//------------------------------------------------------------------------------
+//   Main control flow
+//------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-   SampleMgr  data("data/MuonSignal_SignalMC.json", "Data_1" );
-   SampleMgr  data_2("data/MuonSignal_SignalMC.json", "Data_2" );
-   KinematicCompareHist* data_mgr = new KinematicCompareHist( data , -1 );
-   KinematicCompareHist* data_mgr_2 = new KinematicCompareHist( data_2 , -1 ); // Filling without weight
+   if( argc != 2 ){
+      cerr << "Error! Expected exactly one arguement!" << endl;
+      return 1;
+   }
+   SetChannelType( argv[1] );
+   SampleMgr::LoadJsonFile( GetJsonFile() );
+   const double total_lumi = SampleMgr::TotalLuminosity();
 
-   // Defining out channels see data/MuonSignal.json for sampleSettings
-   cout<< "Defining Background Samples..." << endl;
-   SampleMgr  ttjets         ( "data/MuonSignal.json", "TTJets" );
-   SampleMgr  singlet_s      ( "data/MuonSignal.json", "SingleT_S" );
-   SampleMgr  singlet_t      ( "data/MuonSignal.json", "SingleT_T" );
-   SampleMgr  singlet_tw     ( "data/MuonSignal.json", "SingleT_TW" );
-   SampleMgr  singletbar_tw  ( "data/MuonSignal.json", "SingleTbar_TW" );
-   SampleMgr  wjets_100_200  ( "data/MuonSignal.json", "WJets_100_200" );
-   SampleMgr  wjets_200_400  ( "data/MuonSignal.json", "WJets_200_400" );
-   SampleMgr  wjets_400_600  ( "data/MuonSignal.json", "WJets_400_600" );
-   SampleMgr  wjets_600_800  ( "data/MuonSignal.json", "WJets_600_800" );
-   SampleMgr  wjets_800_1200 ( "data/MuonSignal.json", "WJets_800_1200" );
-   SampleMgr  wjets_1200_2500( "data/MuonSignal.json", "WJets_1200_2500" );
-   SampleMgr  wjets_2500_inf ( "data/MuonSignal.json", "WJets_2500_Inf" );
-   SampleMgr  zjets_100_200  ( "data/MuonSignal.json", "ZJets_100_200" );
-   SampleMgr  zjets_200_400  ( "data/MuonSignal.json", "ZJets_200_400" );
-   SampleMgr  zjets_400_600  ( "data/MuonSignal.json", "ZJets_400_600" );
-   SampleMgr  zjets_600_800  ( "data/MuonSignal.json", "ZJets_600_Inf" );
-   SampleMgr  diboson_ww     ( "data/MuonSignal.json", "WW" );
-   SampleMgr  diboson_wz     ( "data/MuonSignal.json", "WZ" );
-   SampleMgr  diboson_zz     ( "data/MuonSignal.json", "ZZ" );
-   SampleMgr  ttw_lepton     ( "data/MuonSignal.json", "TTW_Lepton");
-   SampleMgr  ttw_quark      ( "data/MuonSignal.json", "TTW_Quark");
-   SampleMgr  ttz_lepton     ( "data/MuonSignal.json", "TTZ_Lepton");
-   SampleMgr  ttz_quark      ( "data/MuonSignal.json", "TTZ_Quark");
+   // Defining data settings
+   vector<SampleHistMgr*> all_data;
+   all_data.push_back( new SampleHistMgr( "Data_1" , -1 ) ) ;
+   all_data.push_back( new SampleHistMgr( "Data_2" , -1 ) ) ;
 
+   // Defining out channels see data/MuonSignal.json for sample settings
+   vector<SampleHistMgr*>  background;
 
-   // Filling Histograms and defining colors
-   cout << "Filling histgrams" << endl;
-   const double total_lumi = 2257;
-   vector<KinematicCompareHist*>  back_ground;
+   const size_t  tt_index = background.size();
+   background.push_back( new SampleHistMgr( "TTJets"          , total_lumi ) );
 
-   const Color_t ttcolor = TColor::GetColor( "#FFCC88" );
-   const size_t  tt_index = back_ground.size();
-   back_ground.push_back( new KinematicCompareHist( ttjets , total_lumi) );
-   back_ground.back()->SetColor( ttcolor );
+   const size_t  singletop_index = background.size();
+   background.push_back( new SampleHistMgr( "SingleT_S"       , total_lumi ) );
+   background.push_back( new SampleHistMgr( "SingleT_T"       , total_lumi ) );
+   background.push_back( new SampleHistMgr( "SingleT_TW"      , total_lumi ) );
+   background.push_back( new SampleHistMgr( "SingleTbar_TW"   , total_lumi ) );
 
-   const Color_t singletop = TColor::GetColor("#996600");
-   const size_t  singletop_index = back_ground.size();
-   back_ground.push_back( new KinematicCompareHist( singlet_s , total_lumi ) );
-   back_ground.back()->SetColor( singletop );
-   back_ground.push_back( new KinematicCompareHist( singlet_t , total_lumi ) );
-   back_ground.back()->SetColor( singletop );
-   back_ground.push_back( new KinematicCompareHist( singlet_tw , total_lumi ) );
-   back_ground.back()->SetColor( singletop );
-   back_ground.push_back( new KinematicCompareHist( singletbar_tw , total_lumi ) );
-   back_ground.back()->SetColor( singletop );
+   const size_t  tt_boson_index = background.size();
+   background.push_back( new SampleHistMgr( "TTW_Lepton"      , total_lumi ) );
+   background.push_back( new SampleHistMgr( "TTW_Quark"       , total_lumi ) );
+   background.push_back( new SampleHistMgr( "TTZ_Lepton"      , total_lumi ) );
+   background.push_back( new SampleHistMgr( "TTZ_Quark"       , total_lumi ) );
 
-   const Color_t tt_boson = TColor::GetColor("#993333");
-   const size_t  tt_boson_index = back_ground.size();
-   back_ground.push_back( new KinematicCompareHist( ttw_quark , total_lumi ));
-   back_ground.back()->SetColor( tt_boson );
-   back_ground.push_back( new KinematicCompareHist( ttw_lepton , total_lumi ));
-   back_ground.back()->SetColor( tt_boson );
-   back_ground.push_back( new KinematicCompareHist( ttz_quark , total_lumi ));
-   back_ground.back()->SetColor( tt_boson );
-   back_ground.push_back( new KinematicCompareHist( ttz_lepton , total_lumi ));
-   back_ground.back()->SetColor( tt_boson );
+   const size_t  singleboson_index = background.size();
+   background.push_back( new SampleHistMgr( "WJets_100_200"   , total_lumi ) );
+   background.push_back( new SampleHistMgr( "WJets_200_400"   , total_lumi ) );
+   background.push_back( new SampleHistMgr( "WJets_400_600"   , total_lumi ) );
+   background.push_back( new SampleHistMgr( "WJets_600_800"   , total_lumi ) );
+   background.push_back( new SampleHistMgr( "WJets_800_1200"  , total_lumi ) );
+   background.push_back( new SampleHistMgr( "WJets_1200_2500" , total_lumi ) );
+   background.push_back( new SampleHistMgr( "WJets_2500_Inf"  , total_lumi ) );
+   background.push_back( new SampleHistMgr( "ZJets_100_200"   , total_lumi ) );
+   background.push_back( new SampleHistMgr( "ZJets_200_400"   , total_lumi ) );
+   background.push_back( new SampleHistMgr( "ZJets_400_600"   , total_lumi ) );
+   background.push_back( new SampleHistMgr( "ZJets_600_Inf"   , total_lumi ) );
 
-   const Color_t singleboson = TColor::GetColor("#33EEEE");
-   const size_t  singleboson_index = back_ground.size();
-   back_ground.push_back( new KinematicCompareHist( wjets_100_200, total_lumi ));
-   back_ground.back()->SetColor( singleboson );
-   back_ground.push_back( new KinematicCompareHist( wjets_200_400, total_lumi ));
-   back_ground.back()->SetColor( singleboson );
-   back_ground.push_back( new KinematicCompareHist( wjets_400_600, total_lumi ));
-   back_ground.back()->SetColor( singleboson );
-   back_ground.push_back( new KinematicCompareHist( wjets_600_800, total_lumi ));
-   back_ground.back()->SetColor( singleboson );
-   back_ground.push_back( new KinematicCompareHist( wjets_800_1200, total_lumi ));
-   back_ground.back()->SetColor( singleboson );
-   back_ground.push_back( new KinematicCompareHist( wjets_1200_2500, total_lumi ));
-   back_ground.back()->SetColor( singleboson );
-   back_ground.push_back( new KinematicCompareHist( wjets_2500_inf, total_lumi ));
-   back_ground.back()->SetColor( singleboson );
+   const size_t  di_boson_index = background.size();
+   background.push_back( new SampleHistMgr( "WW"              , total_lumi ) );
+   background.push_back( new SampleHistMgr( "WZ"              , total_lumi ) );
+   background.push_back( new SampleHistMgr( "ZZ"              , total_lumi ) );
 
-   const Color_t di_boson = TColor::GetColor("#0022AA");
-   const size_t  di_boson_index = back_ground.size();
-   back_ground.push_back( new KinematicCompareHist( diboson_ww , total_lumi ) );
-   back_ground.back()->SetColor( di_boson );
-   back_ground.push_back( new KinematicCompareHist( diboson_wz , total_lumi ) );
-   back_ground.back()->SetColor( di_boson );
-   back_ground.push_back( new KinematicCompareHist( diboson_zz , total_lumi ) );
-   back_ground.back()->SetColor( di_boson );
+   // Setting plotting colors
+   for( unsigned i = tt_index ; i < singletop_index ; ++i ){
+      background[i]->SetColor( TColor::GetColor( "#FFCC88" ) );
+   }
+   for( unsigned i = singletop_index ; i < tt_boson_index ; ++i ){
+      background[i]->SetColor( TColor::GetColor("#996600") );
+   }
+   for( unsigned i = tt_boson_index ; i < singleboson_index ; ++i ){
+      background[i]->SetColor( TColor::GetColor("#FF3333") );
+   }
+   for( unsigned i = singleboson_index ; i < di_boson_index ; ++i ){
+      background[i]->SetColor( TColor::GetColor("#33EEEE"));
+   }
+   for( unsigned i = di_boson_index ; i < background.size() ; ++i ){
+      background[i]->SetColor( TColor::GetColor("#0066EE") );
+   }
 
-
-
+   // Declaring sample sample
+   SampleHistMgr* signal_mgr = new SampleHistMgr( "tstar_M700", total_lumi );
 
    // Making combined stack plots
-   for( const auto& hist_name : back_ground.front()->AvailableHistList() ){
+   for( const auto& hist_name : background.front()->AvailableHistList() ){
+
+      // Caching stuff
+      const unsigned bins = background.front()->GetHist(hist_name)->GetXaxis()->GetNbins();
+      const double   xmin = background.front()->GetHist(hist_name)->GetXaxis()->GetXmin();
+      const double   xmax = background.front()->GetHist(hist_name)->GetXaxis()->GetXmax();
+
       THStack* stack      = new THStack("stack","");
-      TH1D*    error_hist = new TH1D("error","",
-         back_ground.front()->GetHist(hist_name)->GetXaxis()->GetNbins(),
-         back_ground.front()->GetHist(hist_name)->GetXaxis()->GetXmin(),
-         back_ground.front()->GetHist(hist_name)->GetXaxis()->GetXmax() );
-      TH1D*    rel_error = (TH1D*)error_hist->Clone("rel_error");
-      TH1D*    data_hist = (TH1D*)(data_mgr->GetHist(hist_name)->Clone());
-               data_hist->Add( data_mgr_2->GetHist(hist_name) );
-      TH1D*    data_rel_hist = (TH1D*)data_mgr->GetHist(hist_name)->Clone("data_rel");
+      TH1D*    error_hist = new TH1D("error","",bins,xmin,xmax);
+      TH1D*    data_hist =  new TH1D("data" ,"",bins,xmin,xmax);
       Parameter error(0,0,0);
 
-      // Stacking stuff
-      for( auto& sample : boost::adaptors::reverse(back_ground) ){
+      // Making stack and total error hist
+      for( auto& sample : boost::adaptors::reverse(background) ){
          stack->Add( sample->GetHist( hist_name ), "HIST" );
          error_hist->Add( sample->GetHist(hist_name) );
-         error += sample->Sample()->ExpectedYield( total_lumi );
+         error += sample->ExpectedYield(total_lumi);
       }
 
-      // setting Errors
-      data_rel_hist->Add( error_hist , -1 );
+      // Making data hist
+      for( auto& dat : all_data ){
+         data_hist->Add( dat->GetHist(hist_name) );
+      }
+
+      // Making relative error plot
+      TH1D*  data_rel_hist = (TH1D*)data_hist->Clone("data_rel");
+      TH1D*  rel_error     = (TH1D*)error_hist->Clone("rel_error");
       data_rel_hist->Divide( error_hist );
       double avgError = error.RelAvgError();
       for( int i = 0 ; i < error_hist->GetSize() ; ++i ){
-         double binContent = error_hist->GetBinContent(i);
-         double binError   = error_hist->GetBinError(i);
+         double binContent   = error_hist->GetBinContent(i);
+         double binError     = error_hist->GetBinError(i);
          double dataBinError = data_hist->GetBinError(i);
          binError += binContent*avgError;
          error_hist->SetBinError(i,binError);
 
-         rel_error->SetBinContent(i,0.0);
+         rel_error->SetBinContent(i,1.0);
          if( binContent != 0 ){
             rel_error->SetBinError(i, binError/binContent);
             data_rel_hist->SetBinError(i,dataBinError/binContent);
@@ -151,41 +138,49 @@ int main(int argc, char* argv[])
             data_rel_hist->SetBinError(i,0.0);
          }
       }
+      // Making Signal plots
+      TH1D*    signal_hist   = signal_mgr->GetHist(hist_name);
 
       // Legend settings
-      TLegend* l = new TLegend(0.65,0.75,0.95,0.95);
-      l->AddEntry( data_hist , "Data", "lp" );
-      l->AddEntry( back_ground[tt_index]->GetHist(hist_name)          , "t#bar{t} + Jets"  , "f" );
-      l->AddEntry( back_ground[singletop_index]->GetHist(hist_name)   , "Single t/#bar{t}" , "f" );
-      l->AddEntry( back_ground[singleboson_index]->GetHist(hist_name) , "Single Boson"     , "f" );
-      l->AddEntry( back_ground[di_boson_index]->GetHist(hist_name)    , "Di-Boson"         , "f" );
-      l->AddEntry( back_ground[tt_boson_index]->GetHist(hist_name)    , "t#bar{t} + Boson" , "f");
-      l->AddEntry( error_hist , "background error" , "fl" );
+      TLegend* l = new TLegend(0.62,0.3,0.90,0.90);
+      char data_entry[128];
+      sprintf( data_entry , "Data (%lg fb^{-1})" , total_lumi/1000. );
+      l->AddEntry( data_hist , data_entry , "lp" );
+      l->AddEntry( background[tt_index]->GetHist(hist_name)          , "t#bar{t} + Jets"  , "f" );
+      l->AddEntry( background[singletop_index]->GetHist(hist_name)   , "Single top"       , "f" );
+      l->AddEntry( background[tt_boson_index]->GetHist(hist_name)    , "t#bar{t} + Boson" , "f");
+      l->AddEntry( background[singleboson_index]->GetHist(hist_name) , "Single Boson"     , "f" );
+      l->AddEntry( background[di_boson_index]->GetHist(hist_name)    , "Di-Boson"         , "f" );
+      l->AddEntry( error_hist , "Background error" , "fl" );
+      l->AddEntry( signal_hist, "t^{*}#bar{t}^{*} {}_{M_{t^{*}}=700GeV} (10 pb)" , "fl");
 
 
       // The Plotting commands
-      TCanvas* c = new TCanvas("c","c",1600,1000);
+      TCanvas* c = new TCanvas("c","c",650,500);
 
       // Drawing the top canvas
-      TPad* pad1 = new TPad( "pad1" , "pad1" , 0 , 0.3025 , 1., 1.0 );
-      pad1->SetBottomMargin(0.025);
+      TPad* pad1 = new TPad( "pad1" , "pad1" , 0 , 0.30 , 1., 1.0 );
+      pad1->SetBottomMargin(0.050);
       pad1->Draw();
       pad1->cd();
-      stack->Draw();
-      data_hist->Draw("same axis");
+      stack->Draw("HIST");
       data_hist->Draw("same LPE1");
       error_hist->Draw("same E2");
+      signal_hist->Draw("same HIST");
       l->Draw("same");
       c->cd();
 
       // Drawing bottom canvas
-      TPad*   pad2 = new TPad( "pad2" , "pad2" , 0 , 0.05, 1, 0.2975 );
+      TPad*   pad2 = new TPad( "pad2" , "pad2" , 0 , 0.10, 1, 0.30 );
+      TLine*  line = new TLine( error_hist->GetXaxis()->GetXmin() , 1 , error_hist->GetXaxis()->GetXmax() , 1 );
       pad2->SetTopMargin(0.025);
+      pad2->SetBottomMargin(0.010);
       pad2->Draw();
       pad2->cd();
-      rel_error->Draw("axis");
-      rel_error->Draw("same E2");
+      data_rel_hist->Draw("axis");
       data_rel_hist->Draw("same LPE1");
+      rel_error->Draw("same E2");
+      line->Draw("same");
       c->cd();
 
 
@@ -196,25 +191,75 @@ int main(int argc, char* argv[])
       rel_error->SetFillColor(kBlack);
       rel_error->SetLineColor(kBlack);
       rel_error->SetFillStyle(3004);
+      rel_error->SetStats(0);
       data_hist->SetMarkerStyle(21);
       data_hist->SetLineColor(kBlack);
       data_hist->SetStats(0);
       data_rel_hist->SetMarkerStyle(21);
       data_rel_hist->SetLineColor(kBlack);
       data_rel_hist->SetStats(0);
+      signal_hist->SetLineColor(kRed);
+      signal_hist->SetFillColor(kRed);
+      signal_hist->SetFillStyle(3005);
 
-      // Save and clean up
-      c->SaveAs( (hist_name + ".png").c_str() );
+      // Font and title settings
+      const size_t font_size = 14;
+      stack->GetXaxis()->SetLabelSize(0);
+      stack->GetYaxis()->SetLabelFont(43);
+      stack->GetYaxis()->SetLabelSize( font_size );
+      stack->GetYaxis()->SetTitleFont(43);
+      stack->GetYaxis()->SetTitleSize( font_size );
+      stack->GetYaxis()->SetTitle( signal_hist->GetYaxis()->GetTitle() );
+      stack->GetYaxis()->SetTitleOffset(1.2);
+      data_rel_hist->GetXaxis()->SetTitle( signal_hist->GetXaxis()->GetTitle() );
+      data_rel_hist->GetXaxis()->SetLabelFont(43);
+      data_rel_hist->GetXaxis()->SetLabelSize( font_size );
+      data_rel_hist->GetYaxis()->SetLabelFont(43);
+      data_rel_hist->GetXaxis()->SetTitleFont(43);
+      data_rel_hist->GetXaxis()->SetTitleSize( font_size );
+      data_rel_hist->GetXaxis()->SetTitleOffset(5.5);
+      data_rel_hist->GetYaxis()->SetLabelSize( font_size );
+      data_rel_hist->GetYaxis()->SetTitle( "#frac{Data}{MC}");
+      data_rel_hist->GetYaxis()->SetTitleFont(43);
+      data_rel_hist->GetYaxis()->SetTitleSize( font_size );
+      data_rel_hist->GetYaxis()->SetTitleOffset(1.2);
+      data_rel_hist->SetMaximum(2.0);
+      data_rel_hist->SetMinimum(0.0);
+      l->SetTextSizePixels( font_size );
+
+      // Additional captions
+      TLatex tl;
+      tl.SetTextFont(43);
+      tl.SetTextSize( font_size + 4 );
+
+      tl.SetTextAlign(11);
+      tl.DrawLatex( 0.1, 0.95 , "CMS at #sqrt{s} = 13TeV");
+
+      tl.SetTextAlign(31);
+      string channel_msg = "";
+      if( GetChannel().find("Muon") != string::npos ){
+         channel_msg="(#mu channel)";
+      } else if( GetChannel().find("Electron") != string::npos ){
+         channel_msg="(e channel)";
+      }
+      tl.DrawLatex( 0.9, 0.95 , channel_msg.c_str() );
+
+      c->SaveAs( GetKinematicPlotFile(hist_name).c_str() );
       delete pad1;
       delete pad2;
       delete c;
-      delete error_hist;
       delete l;
+      delete data_hist;
+      delete error_hist;
       delete stack;
+      delete line;
    }
 
    // Cleaning up
-   for( auto* histmgr : back_ground ){
+   for( auto& histmgr : background ){
+      delete histmgr;
+   }
+   for( auto& histmgr : all_data ){
       delete histmgr;
    }
    return 0;

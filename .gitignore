@@ -24,6 +24,8 @@ log*
 
 # Specific file exclusion
 # [relative/path/to/file]
+.remote-sync.json
+CompareDataMC/results/**
 
 # Specific file inclusion
 # ![relative/path/to/file]

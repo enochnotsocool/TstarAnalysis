@@ -15,14 +15,12 @@
 
 class SampleGroup : public JsonLoader {
 public:
-   SampleGroup(const std::string& file , const std::string& label );
+   SampleGroup( const std::string& label );
    virtual ~SampleGroup ();
 
-   const std::string& Name() const { return _name; }
    const std::string& LatexName() const { return _latexname; }
    std::vector<SampleMgr>& SampleList(){ return _samplelist; }
 private:
-   const std::string _name;
    const std::string _latexname;
    std::vector<SampleMgr> _samplelist;
 };

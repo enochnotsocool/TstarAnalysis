@@ -6,6 +6,7 @@
 <use name="PhysicsTools/FWLite" />
 <use name="TstarAnalysis/Utils"/>
 <use name="TstarAnalysis/CompareDataMC"/>
-<bin name="read_test"        file="read_test.cc"/>
+
 <bin name="KinematicCompare" file="KinematicCompare.cc"/>
 <bin name="MakeRooFitObj"    file="MakeRooFitObj.cc"/>
+<bin name="MakeSummaryTable" file="MakeSummaryTable.cc"/>

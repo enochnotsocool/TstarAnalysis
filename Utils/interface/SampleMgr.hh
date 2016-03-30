@@ -33,8 +33,11 @@
 //------------------------------------------------------------------------------
 class SampleMgr : public JsonLoader {
 public:
-   SampleMgr( const std::string& , const std::string& );
+   SampleMgr( const std::string& );
    virtual ~SampleMgr ();
+
+   // Static settings
+   static double TotalLuminosity();
 
    // Access members
    const std::string&  LatexName() const { return _latexname; }
@@ -45,6 +48,8 @@ public:
 
    // Extended functions
    size_t    EventsInFile() { return _event.size(); }
+   uint64_t  CountOriginalEvent() const;
+   uint64_t  CountSelectedEvent() const;
    size_t    WeightedEventsInFile() const { return CountSelectedEvent(); }
    Parameter ExpectedYield( const double totalLumi ) const;
    Parameter GetSampleWeight( const double ) ;
@@ -57,8 +62,6 @@ private:
    const Parameter     _selection_eff; // Caching selection results
 
    Parameter MakeSelectionEfficiency() const ;
-   uint64_t  CountOriginalEvent() const;
-   uint64_t  CountSelectedEvent() const;
    uint64_t  CountEvent( const std::string& ) const ;
 };
 
