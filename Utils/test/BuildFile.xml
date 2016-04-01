@@ -1,4 +1,8 @@
 <use name="TstarAnalysis/Utils"/>
+
+<flags CXXFLAGS="-g"/>
+
 <bin name="samplemgr_test" file="samplemgr_test.cc"/>
 <bin name="samplegrp_test" file="samplegrp_test.cc"/>
+<bin name="systutils_test" file="sysutils_test.cc"/>
 <bin name="parameter_arithmatics" file="parameter_arithmatics.cc"/>

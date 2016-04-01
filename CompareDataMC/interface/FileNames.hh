@@ -18,5 +18,8 @@ extern std::string  GetKinematicPlotFile( const std::string& );
 extern std::string  GetRooFitPlot_Template_File();
 extern std::string  GetRooFitObj_Template_File();
 extern std::string  GetTemplate_CardFile( const std::string& );
+extern std::string  GetTemplate_PlotFile();
+extern std::string  GetTemplate_HiggCombineStoreFile( const std::string& , int );
+extern std::string  GetHiggCombineOutputFile( const std::string& , int );
 
 #endif /* end of include guard: __FILENAME_HH__ */

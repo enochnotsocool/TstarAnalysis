@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 
    cout << "Reading Json file" << endl;
    SampleMgr::LoadJsonFile( "sample.json" );
-   SampleMgr mysample("sample.json", "Single_T" );
+   SampleMgr mysample( "Single_T" );
 
    fwlite::Handle<std::vector<pat::Jet>> Jets;
 

@@ -100,9 +100,9 @@ int main(int argc, char* argv[])
          fprintf( tex_file, table_line,
             sample.LatexName().c_str(),
             sample.CrossSection().LatexFormat().c_str(),
-            sample.SelectionEfficiency().LatexFormat().c_str(),
+            sample.SelectionEfficiency().LatexFormat(2).c_str(),
             sample.KFactor().LatexFormat().c_str(),
-            sample.ExpectedYield( total_lumi ).LatexFormat().c_str() );
+            sample.ExpectedYield( total_lumi ).LatexFormat(1).c_str() );
          if( j >= sep_index[1] ){
             exp_yield += sample.ExpectedYield( total_lumi );
          }

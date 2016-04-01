@@ -116,7 +116,7 @@ Parameter operator*( const double y , const Parameter& x )
 //   Output functions
 //------------------------------------------------------------------------------
 
-string Parameter::LatexFormat() const
+string Parameter::LatexFormat( int precision ) const
 {
    char buffer_1[1024];
    char buffer_2[1024];
@@ -125,7 +125,7 @@ string Parameter::LatexFormat() const
    double down= _error_down;
    int    exp = 0;
 
-   if( fabs(cen) < 0.0001 ){
+   if( fabs(cen) < 0.001 ){
       while( fabs(cen) < 1. ){
          cen*=10;
          up*=10;
@@ -141,14 +141,31 @@ string Parameter::LatexFormat() const
       }
    }
 
+   char float_format[64];
+   char buff_1_format[64];
+   if( precision > 0 ){
+      double temp = cen;
+      while( temp < 1 ){
+         temp *= 10 ;
+         ++precision;
+      }
+      sprintf(float_format,"%%.%dlf",precision);
+   } else {
+      sprintf(float_format,"%%lg");
+   }
+
+
    if( up == down ){
       if( up == 0. ){
-         sprintf( buffer_1 , "%lg" , cen );
+         sprintf( buff_1_format , "%s" , float_format );
+         sprintf( buffer_1 , buff_1_format , cen );
       } else {
-         sprintf( buffer_1, "%lg\\pm%lg" , cen , up );
+         sprintf( buff_1_format, "%s\\pm%s" , float_format, float_format );
+         sprintf( buffer_1, buff_1_format , cen , up );
       }
    } else {
-      sprintf( buffer_1, "%lg^{%lg}_{%lg}" , cen, up , down );
+      sprintf( buff_1_format , "%s^{%s}_{%s}" , float_format, float_format, float_format );
+      sprintf( buffer_1, buff_1_format , cen, up , down );
    }
 
    if( exp != 0 ){

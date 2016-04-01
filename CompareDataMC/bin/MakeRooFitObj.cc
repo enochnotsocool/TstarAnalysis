@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
 
       // Printing data correspondence
       fprintf( cardfile , "%12s %s\n" , "bin" , GetChannel().c_str() );
-      fprintf( cardfile , "%12s %lf\n" , "observation" , data_obs->sumEntries() );
+      fprintf( cardfile , "%12s %lg\n" , "observation" , data_obs->sumEntries() );
       fprintf( cardfile , "----------------------------------------\n" );
 
       // Printing expected
@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
       fprintf( cardfile , "%12s %15s %15s\n" , "process" , "sig", "bg" );
       fprintf( cardfile , "%12s %15s %15s\n" , "process" , "-1" , "1" );
       fprintf( cardfile , "%12s %15lf %15lf\n" , "rate",
-            signal_dataset->sumEntries(),
+            signal_dataset->sumEntries() ,
             data_obs->sumEntries()
          );
 

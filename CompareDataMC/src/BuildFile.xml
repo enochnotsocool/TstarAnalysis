@@ -5,4 +5,7 @@
 <use name="DataFormats/FWLite"/>
 <use name="DataFormats/PatCandidates"/>
 <use name="SimDataFormats/GeneratorProducts"/>
+
+<flags CXXFLAGS="-g"/>
+
 <export><lib name="1"/></export>

@@ -45,7 +45,7 @@ public:
    inline operator double() const{ return _centralValue; }
 
    // Output
-   std::string LatexFormat() const;
+   std::string LatexFormat( int = -1 ) const;
    std::string DataCardFormat() const;
 
 private:

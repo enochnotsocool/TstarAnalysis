@@ -7,6 +7,9 @@
 <use name="TstarAnalysis/Utils"/>
 <use name="TstarAnalysis/CompareDataMC"/>
 
+<flags CXXFLAGS="-g"/>
+
 <bin name="KinematicCompare" file="KinematicCompare.cc"/>
 <bin name="MakeRooFitObj"    file="MakeRooFitObj.cc"/>
 <bin name="MakeSummaryTable" file="MakeSummaryTable.cc"/>
+<bin name="Run_MCTemplate"   file="Run_MCTemplate.cc"/>
