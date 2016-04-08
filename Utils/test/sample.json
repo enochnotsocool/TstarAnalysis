@@ -1,5 +1,29 @@
 {
+   "Total Luminosity": 2256.0,
    "Selection Cut Label": "afterBaseLine",
+
+   "___Comment___":"""-----------------------------------------------------------
+   #    Defining Groups
+   -----------------------------------------------------------------------------""",
+   "All" : {
+      "Latex Name": "All",
+      "Color": "#007777",
+      "Sample List": [
+         "TTJets", "Single_T"
+      ]
+   },
+
+   "Background":{
+      "Latex Name": "Background",
+      "Color":"#123456",
+      "Sample List":[
+         "TTJets"
+      ]
+   },
+
+   "___Comment___":"""-----------------------------------------------------------
+   #    Defining individual samples
+   -----------------------------------------------------------------------------""",
 
    "TTJets" : {
       "Latex Name": "LatexName_Content",

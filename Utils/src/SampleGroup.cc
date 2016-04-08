@@ -7,19 +7,50 @@
 *******************************************************************************/
 #include "TstarAnalysis/Utils/interface/SampleGroup.hh"
 
+#include <iostream>
+#include <exception>
 using namespace std;
+
 //------------------------------------------------------------------------------
 //   Constructors
 //------------------------------------------------------------------------------
 SampleGroup::SampleGroup( const string& name ):
    JsonLoader( name ),
-   _latexname( GetString("Latex Name"))
+   _latexname( GetString("Latex Name") )
 {
-   const string sample_json = GetString( "Sample Json" );
-   const vector<string> sample_name_list = GetStringList( "Samples");
-   for( const auto& sample_name : sample_name_list ){
-      _samplelist.push_back( SampleMgr( sample_name ) );
+   try{
+      _samplelist.push_back( SampleMgr(name) );
+   }catch(exception& e){
+      for( const auto& sample_name : GetStringList("Sample List") ){
+         _samplelist.push_back( SampleMgr(sample_name) );
+      }
    }
 }
 
 SampleGroup::~SampleGroup(){}
+
+//------------------------------------------------------------------------------
+//   Helper functions
+//------------------------------------------------------------------------------
+double SampleGroup::TotalLuminosity()
+{
+   return GetStaticDouble("Total Luminosity");
+}
+
+unsigned SampleGroup::EventsInFile() const
+{
+   unsigned ans = 0;
+   for( const auto& sample : _samplelist ){
+      ans += sample.EventsInFile();
+   }
+   return ans;
+}
+
+Parameter SampleGroup::ExpectedYield() const
+{
+   Parameter ans(0,0,0);
+   for( const auto& sample : _samplelist ){
+      ans += sample.ExpectedYield();
+   }
+   return ans;
+}

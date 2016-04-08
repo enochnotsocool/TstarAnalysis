@@ -5,7 +5,50 @@
    "Selection Cut Label":"afterBaseLine",
    "Total Luminosity": 2256,
 
+   "___Comment___":"""-----------------------------------------------------------
+   #    Defining Groups:
+   -----------------------------------------------------------------------------""",
+   "Data" : {
+      "Latex Name": "Data",
+      "Sample List": [ "Data_1", "Data_2" ]
+   },
 
+   "SingleTop":{
+      "Latex Name": "Single Top",
+      "Sample List": ["SingleT_S" , "SingleT_T" , "SingleT_TW" , "SingleTbar_TW" ]
+   },
+
+   "TTBoson":{
+      "Latex Name": "Top pair with boson",
+      "Sample List": ["TTW_Quark", "TTW_Lepton", "TTZ_Quark", "TTZ_Lepton"]
+   },
+
+   "SingleBoson":{
+      "Latex Name": "Single Boson",
+      "Sample List":[
+         "WJets_100_200", "WJets_200_400", "WJets_400_600", "WJets_600_800",
+         "WJets_800_1200" , "WJets_1200_2500" , "WJets_2500_Inf",
+         "ZJets_100_200", "ZJets_200_400", "ZJets_400_600" , "ZJets_600_Inf"
+      ]
+   },
+
+   "DiBoson":{
+      "Latex Name": "Di Boson",
+      "Sample List":["WW", "WZ", "ZZ"]
+   },
+
+   "Background" : {
+      "Latex Name": "all background",
+      "Sample List":[
+         "TTJets",
+         "SingleT_S" , "SingleT_T" , "SingleT_TW" , "SingleTbar_TW",
+         "TTW_Quark", "TTW_Lepton", "TTZ_Quark", "TTZ_Lepton",
+         "WJets_100_200", "WJets_200_400", "WJets_400_600", "WJets_600_800",
+         "WJets_800_1200" , "WJets_1200_2500" , "WJets_2500_Inf",
+         "ZJets_100_200", "ZJets_200_400", "ZJets_400_600" , "ZJets_600_Inf",
+         "WW", "WZ", "ZZ"
+      ]
+   },
 
    "___Comment___":"""-----------------------------------------------------------
    #    Data sector
@@ -140,7 +183,7 @@
       ]
    },
    "ZJets_100_200": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} in [100,200)$)",
+      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [100,200)$)",
       "Cross Section": [ 147.40, 0.09, 0.09],
       "K Factor": [1.23],
       "EDM Files":[
@@ -148,7 +191,7 @@
       ]
    },
    "ZJets_200_400": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} in [200,400)$)",
+      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [200,400)$)",
       "Cross Section": [40.99, 0.04, 0.04],
       "K Factor": [1.23],
       "EDM Files":[
@@ -156,7 +199,7 @@
       ]
    },
    "ZJets_400_600": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} in [400,600)$)",
+      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [400,600)$)",
       "Cross Section": [ 5.678, 0.005, 0.005 ],
       "K Factor": [1.23],
       "EDM Files":[
@@ -164,7 +207,7 @@
       ]
    },
    "ZJets_600_Inf": {
-      "Latex Name" : "$Z$ + Jets ($H_{T} in [600,\\infty)$)",
+      "Latex Name" : "$Z$ + Jets ($H_{T} \\in [600,\\infty)$)",
       "Cross Section": [ 2.189, 0.002, 0.002 ],
       "K Factor": [1.23],
       "EDM Files":[

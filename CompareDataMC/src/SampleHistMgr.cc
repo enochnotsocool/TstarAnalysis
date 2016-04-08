@@ -21,8 +21,8 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
-SampleHistMgr::SampleHistMgr( const string& name, const double total_lumi ):
-   SampleMgr( name )
+SampleHistMgr::SampleHistMgr( const string& name ):
+   SampleGroup( name )
 {
    _histlist.clear();
    AddHist( "LepPt"     , "Lepton {P_{T}}"           , "GeV/c"   , 48 , 20   , 500. );
@@ -37,11 +37,14 @@ SampleHistMgr::SampleHistMgr( const string& name, const double total_lumi ):
    AddHist( "TstarMass" , "M_{t+g}"                  , "GeV/c^2" , 50 , 0    , 2000 );
    AddHist( "ChiSq"     , "#chi^{2}"                 , ""        , 50 , 0    , 10000 );
 
-   FillHistograms( total_lumi );
+   for( auto& sample : SampleList() ){
+      FillHistograms(sample);
+   }
+
 }
 
 
-void SampleHistMgr::FillHistograms( const double total_lumi )
+void SampleHistMgr::FillHistograms( SampleMgr& sample )
 {
    fwlite::Handle<vector<pat::MET>>      metHandle;
    fwlite::Handle<vector<pat::Jet>>      jetHandle;
@@ -50,31 +53,30 @@ void SampleHistMgr::FillHistograms( const double total_lumi )
    fwlite::Handle<LHEEventProduct>       lheHandle;
    fwlite::Handle<ChiSquareResult>       chisqHandle;
 
-   double sample_weight;
-   if( total_lumi > 0 ){
-      sample_weight = GetSampleWeight(total_lumi);
-   } else {
-      sample_weight = 1.0; // For running on data
+   double sample_weight = 1.;
+   if( !sample.IsRealData() ) {
+      sample_weight = sample.GetSampleWeight(); // For running on data
    }
 
    unsigned i = 0;
-   LOOP_EVENT( Event() ){
-      printf( "\rSample %-15s, Event[%u/%llu]..." ,
+   LOOP_EVENT( sample.Event() ){
+      printf( "\rSample [%s|%s], Event[%u/%llu]..." ,
          Name().c_str(),
+         sample.Name().c_str(),
          ++i ,
-         Event().size()
+         sample.Event().size()
       );
       fflush(stdout);
 
-      metHandle.getByLabel(      Event() , "slimmedMETs"    );
-      jetHandle.getByLabel(      Event() , "skimmedPatJets" );
-      muonHandle.getByLabel(     Event() , "skimmedPatMuons" );
-      electronHandle.getByLabel( Event() , "skimmedPatElectrons" );
-      chisqHandle.getByLabel(    Event() , "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
+      metHandle.getByLabel(      sample.Event() , "slimmedMETs"    );
+      jetHandle.getByLabel(      sample.Event() , "skimmedPatJets" );
+      muonHandle.getByLabel(     sample.Event() , "skimmedPatMuons" );
+      electronHandle.getByLabel( sample.Event() , "skimmedPatElectrons" );
+      chisqHandle.getByLabel(    sample.Event() , "tstarMassReco" , "ChiSquareResult" , "TstarMassReco" );
 
       double event_weight = 1.;
-      if( total_lumi > 0 ){
-         lheHandle.getByLabel( Event() , "externalLHEProducer" );
+      if( !sample.IsRealData() ){
+         lheHandle.getByLabel( sample.Event() , "externalLHEProducer" );
          if( lheHandle.isValid() && lheHandle->hepeup().XWGTUP <= 0 ){
             event_weight = -1. ;
          }
@@ -165,5 +167,19 @@ void SampleHistMgr::SetColor( const Color_t& x )
    for( auto hist : _histlist ){
       hist->SetFillColor( x );
       hist->SetLineColor( x );
+   }
+}
+
+void SampleHistMgr::Scale( const double x )
+{
+   for( auto hist: _histlist ){
+      for( int i = 0 ; i < hist->GetSize() ; ++i ){
+         double bincontent = hist->GetBinContent(i);
+         double binerror   = hist->GetBinError(i);
+         bincontent *= x ;
+         binerror   *= x ;
+         hist->SetBinContent(i,bincontent);
+         hist->SetBinError(i,binerror);
+      }
    }
 }

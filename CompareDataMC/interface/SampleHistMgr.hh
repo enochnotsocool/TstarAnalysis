@@ -8,17 +8,22 @@
 #ifndef __SAMPLEHISTMGR_HH__
 #define __SAMPLEHISTMGR_HH__
 
-#include "TstarAnalysis/Utils/interface/SampleMgr.hh"
+#include "TstarAnalysis/Utils/interface/SampleGroup.hh"
 #include <vector>
 #include <string>
 #include "TH1D.h"
 
-class SampleHistMgr : public SampleMgr {
+class SampleHistMgr : public SampleGroup {
 public:
-   SampleHistMgr( const std::string&, const double );
+   SampleHistMgr( const std::string& );
    ~SampleHistMgr();
 
+   // Root object handling, removing explicit copying.
+   SampleHistMgr( const SampleHistMgr&) = delete ;
+   SampleHistMgr& operator=(const SampleHistMgr&)=delete;
+
    void SetColor( const Color_t& );
+   void Scale( const double );
    TH1D* GetHist( const std::string& );
    std::vector<std::string> AvailableHistList() const;
 
@@ -26,7 +31,7 @@ private:
    std::vector<TH1D*> _histlist;
 
    void AddHist( const std::string&, const std::string& , const std::string&, int, double, double );
-   void FillHistograms( const double ) ;
+   void FillHistograms(SampleMgr&) ;
 
 };
 

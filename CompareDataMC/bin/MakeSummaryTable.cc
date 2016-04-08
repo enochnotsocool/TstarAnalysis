@@ -21,7 +21,6 @@ int main(int argc, char* argv[])
    cout << "Making summary table!" << endl;
    SetChannelType( argv[1] );
    SampleMgr::LoadJsonFile( GetJsonFile() );
-   const double total_lumi = SampleMgr::TotalLuminosity();
 
    vector<SampleMgr*>  all_samples;
    vector<unsigned>    sep_index;
@@ -102,9 +101,9 @@ int main(int argc, char* argv[])
             sample.CrossSection().LatexFormat().c_str(),
             sample.SelectionEfficiency().LatexFormat(2).c_str(),
             sample.KFactor().LatexFormat().c_str(),
-            sample.ExpectedYield( total_lumi ).LatexFormat(1).c_str() );
+            sample.ExpectedYield().LatexFormat(1).c_str() );
          if( j >= sep_index[1] ){
-            exp_yield += sample.ExpectedYield( total_lumi );
+            exp_yield += sample.ExpectedYield();
          }
       }
    }

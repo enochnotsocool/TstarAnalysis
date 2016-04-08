@@ -8,26 +8,28 @@
 #ifndef __SAMPLE_ROOFIT_MGR_HH__
 #define __SAMPLE_ROOFIT_MGR_HH__
 
+#include "TstarAnalysis/Utils/interface/SampleGroup.hh"
+#include "TstarAnalysis/Utils/interface/Parameter.hh"
 #include <string>
 #include <vector>
 #include "RooRealVar.h"
 #include "RooDataSet.h"
 #include "RooAbsPdf.h"
 
-class SampleRooFitMgr
+class SampleRooFitMgr : public SampleGroup
 {
 public:
    SampleRooFitMgr( const std::string& ); // Single Sample ( for signal )
-   SampleRooFitMgr( const std::string&, const std::vector<std::string>& ); // Multiple Sample (for background and data)
    ~SampleRooFitMgr();
 
-// Static member functions
-   static void LoadJsonFile( const std::string& );
+   // Static member functions
+   static double MinMass();
+   static double MinFitMass();
+   static double MaxMass();
    static RooRealVar& x() { return _x; }
    static RooRealVar& w() { return _w; }
 
    // Additional access functions
-   const std::string& Name() const { return _name; }
    RooDataSet* OriginalDataSet() { return _dataset; }
 
    // Making/Acessing extended dataset
@@ -46,12 +48,11 @@ public:
 private:
    static RooRealVar _x;
    static RooRealVar _w;
-   const std::string _name;
    RooDataSet* _dataset;
    std::vector<RooDataSet*> _ext_dataset;
    std::vector<RooAbsPdf*>  _pdf_list;
 
-   void FillDataSet( const std::string& );
+   void FillDataSet( SampleMgr& );
 };
 
 #endif /* end of include guard: __SAMPLE_ROOFIT_MGR_HH__ */

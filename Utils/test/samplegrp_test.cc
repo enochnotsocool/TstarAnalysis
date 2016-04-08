@@ -12,6 +12,15 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
+   SampleGroup::LoadJsonFile( "sample.json" );
+   SampleGroup all("All");
+   SampleGroup bg("Background");
+   SampleGroup ttjets("TTJets");
 
+   cout << ttjets.ExpectedYield() << endl;
+   cout << bg.ExpectedYield() << endl;
+   for( const auto& sample : bg.SampleList() ){
+      cout << sample.ExpectedYield() << endl;
+   }
    return 0;
 }

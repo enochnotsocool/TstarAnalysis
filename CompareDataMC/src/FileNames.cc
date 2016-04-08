@@ -18,15 +18,25 @@ static string channel_name;
 
 void SetChannelType( const string& x ) { channel_name = x; }
 string GetChannel() { return channel_name; }
-string  GetJsonFile() { return work_dir + "/data/" + channel_name + ".json"; }
 
+string GetChannelPlotLabel(){
+   if( channel_name == "MuonSignal" ){
+      return "#mu signal channel";
+   }else if( channel_name == "ElectronSignal") {
+      return "e signal channel";
+   } else {
+      return "Unknown channel";
+   }
+}
+
+string  GetJsonFile() { return work_dir + "/data/" + channel_name + ".json"; }
 string ResultsDir() { return work_dir + "/results/" + channel_name + "/" ; }
-string GetTexSummaryFile() { return ResultsDir() + channel_name + "_summary.tex" ; }
+string GetTexSummaryFile() { return ResultsDir() + "summary.tex" ; }
 string GetKinematicPlotFile( const string& plot_name ) { return ResultsDir() + plot_name + ".png"; }
 
-string GetRooFitPlot_Template_File(){ return ResultsDir() + "RooFit_MCTemplate" + channel_name + ".png"; }
-string GetRooFitObj_Template_File(){ return ResultsDir() + "RooFit_MCTemplate" + channel_name + ".root"; }
-string GetTemplate_CardFile( const string& x ){ return ResultsDir() + "card_" + channel_name +"_"+  x + ".txt" ; }
+string GetRooFitPlot_Template_File(){ return ResultsDir() + "RooFit_MCTemplate" +  ".png"; }
+string GetRooFitObj_Template_File(){ return ResultsDir() + "RooFit_MCTemplate" + ".root"; }
+string GetTemplate_CardFile( const string& x ){ return ResultsDir() + "card_" + "_"+  x + ".txt" ; }
 string GetTemplate_HiggCombineStoreFile( const string& method, int mass ){
    char buffer[2048];
    sprintf( buffer , "%s/higgscombine_template_%s_%d.root" ,
@@ -37,7 +47,7 @@ string GetTemplate_HiggCombineStoreFile( const string& method, int mass ){
 }
 
 string GetTemplate_PlotFile(){
-   return ResultsDir() + "Confidnece_Level_Template.png" ;
+   return ResultsDir() + "limit_template.png" ;
 }
 
 string GetHiggCombineOutputFile( const string& method , int mass ){

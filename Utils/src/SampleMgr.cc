@@ -43,14 +43,23 @@ double SampleMgr::TotalLuminosity()
 //------------------------------------------------------------------------------
 //   Computation results
 //------------------------------------------------------------------------------
-Parameter SampleMgr::ExpectedYield( const double totalLumi )const
+bool SampleMgr::IsRealData() const
 {
-   return totalLumi * CrossSection()* SelectionEfficiency() * KFactor();
+   return _event.isRealData();
 }
 
-Parameter SampleMgr::GetSampleWeight( const double totalLumi )
+Parameter SampleMgr::ExpectedYield() const
 {
-   return ExpectedYield(totalLumi) * (1/(double)CountSelectedEvent()) ;
+   if( IsRealData() ){
+      return Parameter(_event.size(),0,0);
+   } else {
+      return TotalLuminosity() * CrossSection() * SelectionEfficiency() * KFactor();
+   }
+}
+
+Parameter SampleMgr::GetSampleWeight()
+{
+   return ExpectedYield() * (1/(double)CountSelectedEvent()) ;
 }
 
 Parameter SampleMgr::MakeSelectionEfficiency() const

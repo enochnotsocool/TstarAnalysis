@@ -10,6 +10,7 @@
 
 #define CANVAS_WIDTH   650
 #define CANVAS_HEIGHT  500
-#define FONT_SIZE      14 
+#define FONT_SIZE      14
+
 
 #endif /* end of include guard: __PLOT_CONFIG_HH__ */

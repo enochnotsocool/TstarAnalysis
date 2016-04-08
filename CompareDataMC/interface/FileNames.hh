@@ -12,6 +12,7 @@
 
 extern void SetChannelType( const std::string& );
 extern std::string  GetChannel();
+extern std::string  GetChannelPlotLabel();
 extern std::string  GetJsonFile();
 extern std::string  GetTexSummaryFile();
 extern std::string  GetKinematicPlotFile( const std::string& );

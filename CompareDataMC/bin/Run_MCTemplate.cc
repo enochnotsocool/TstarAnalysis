@@ -46,7 +46,7 @@ const string method = "Asymptotic";
 //------------------------------------------------------------------------------
 //   Helper functions
 //------------------------------------------------------------------------------
-int GetInt( const string& );
+extern int GetInt( const string& );
 
 int main(int argc, char* argv[]) {
 
@@ -193,18 +193,4 @@ int main(int argc, char* argv[]) {
 
 
    return 0;
-}
-
-//------------------------------------------------------------------------------
-//   Helper function implementations
-//------------------------------------------------------------------------------
-int GetInt( const string& x )
-{
-   string ans_string;
-   for( auto y : x ){
-      if( y >= '0' && y <= '9'){
-         ans_string.push_back(y);
-      }
-   }
-   return stoi(ans_string);
 }

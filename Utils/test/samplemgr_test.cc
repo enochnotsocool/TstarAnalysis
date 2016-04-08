@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
    cout << mysample.KFactor().CentralValue() << endl;
    cout << mysample.EventsInFile() << endl;
    cout << mysample.WeightedEventsInFile() << endl;
-   cout << mysample.ExpectedYield( 2.42 ) << endl;
-   cout << mysample.GetSampleWeight( 2.42) << endl;
+   cout << mysample.ExpectedYield() << endl;
+   cout << mysample.GetSampleWeight() << endl;
    int i = 0;
    cout << "entering main loop" << endl;
    for( mysample.Event().toBegin() ; !mysample.Event().atEnd() ; ++mysample.Event() , ++i ){

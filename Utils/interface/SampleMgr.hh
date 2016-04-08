@@ -40,19 +40,20 @@ public:
    static double TotalLuminosity();
 
    // Access members
-   const std::string&  LatexName() const { return _latexname; }
+   fwlite::ChainEvent& Event() { return _event; }
+   const std::string&  LatexName()           const { return _latexname; }
    const Parameter&    CrossSection()        const { return _cross_section; }
    const Parameter&    KFactor()             const { return _k_factor; }
    const Parameter&    SelectionEfficiency() const { return _selection_eff;}
-   fwlite::ChainEvent& Event() { return _event; }
 
    // Extended functions
-   size_t    EventsInFile() { return _event.size(); }
+   bool      IsRealData() const ;
+   size_t    EventsInFile() const { return _event.size(); }
    uint64_t  CountOriginalEvent() const;
    uint64_t  CountSelectedEvent() const;
    size_t    WeightedEventsInFile() const { return CountSelectedEvent(); }
-   Parameter ExpectedYield( const double totalLumi ) const;
-   Parameter GetSampleWeight( const double ) ;
+   Parameter ExpectedYield() const;
+   Parameter GetSampleWeight() ;
 
 private:
    fwlite::ChainEvent  _event;
