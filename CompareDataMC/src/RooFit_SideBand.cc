@@ -113,10 +113,9 @@ void MakeSideBand( SampleRooFitMgr* data_mgr, SampleRooFitMgr* signal )
    // Plotting objects
    RooPlot* frame = SampleRooFitMgr::x().frame();
 
-   TGraph* data_plot   = PlotOn( frame , data_mgr->OriginalDataSet() );
-   TGraph* bg_plot     = PlotOn( frame, bg_pdf,
-      RooFit::Range("FitRange") ,
-      RooFit::Normalization(exp_yield,RooAbsReal::NumEvent) );
+   TGraph* data_plot   = PlotOn( frame, data_mgr->OriginalDataSet() );
+   bg_pdf->plotOn( frame , RooFit::Range("FitRange") , RooFit::Normalization(exp_yield,RooAbsReal::NumEvent));
+   TGraph* bg_plot = (TGraph*)frame->getObject( frame->numItems() -1 );
    TGraph* sig_set_plot =  PlotOn( frame , signal_reduced );
    TGraph* signal_plot = PlotOn( frame, signal_pdf ,
       RooFit::Range(lower-0.5*rms,upper+0.5*rms),
@@ -194,6 +193,53 @@ void MakeSideBand( SampleRooFitMgr* data_mgr, SampleRooFitMgr* signal )
 
    delete c;
    return ;
+}
+
+void MakeCheckPlot(SampleRooFitMgr* data)
+{
+   data_reduced = data->GetReduceDataSet("FitRange");
+
+   // Calling TMinuit for self defined log likelihood fit
+   double m_val, m_err, b_val, b_err;
+   TMinuit* my_minuit = new TMinuit(2);
+   my_minuit->SetPrintLevel(-1); // Suppressing output
+   my_minuit->SetFCN( &LogLikihoodFCN );
+   my_minuit->DefineParameter(0, "m", 150., 100., 1., 1000. );
+   my_minuit->DefineParameter(1, "b", 150., 100., 1., 1000. );
+   my_minuit->Command("MINI");
+   my_minuit->Command("MINOS");
+   my_minuit->GetParameter(0,m_val,m_err);
+   my_minuit->GetParameter(1,b_val,b_err);
+   delete my_minuit;
+
+
+   // Making background pdf
+   RooRealVar m("m","m",100,1000);
+   RooRealVar b("b","b",100,1000);
+   const string pdf_name = data->MakePdfAlias( "none" );
+   RooGenericPdf* bg_pdf = new RooGenericPdf(
+      pdf_name.c_str() , pdf_name.c_str() ,
+      "1/(1+exp((x-m)/b))",
+      RooArgSet(SampleRooFitMgr::x(),m,b) );
+   data->AddPdf(bg_pdf);
+   m = m_val ; m.setError(m_err);
+   b = b_val ; m.setError(b_err);
+   m.setConstant(kTRUE);
+   b.setConstant(kTRUE);
+
+   TCanvas* c = new TCanvas("c","c",CANVAS_WIDTH,CANVAS_HEIGHT);
+   TLegend* l = new TLegend(0.55,0.5,0.9,0.9);
+   RooPlot* frame = SampleRooFitMgr::x().frame();
+   TGraph* data_set_plot = PlotOn( frame , data->OriginalDataSet() );
+   TGraph* pdf_plot    = PlotOn( frame , data->GetPdfFromAlias("none"), RooFit::Range("FitRange") );
+   frame->Draw();
+   frame->SetMinimum(0.03);
+   l->AddEntry(data_set_plot,"Data","lp");
+   l->AddEntry(pdf_plot ,"MC Template fit (Norm)","l");
+   l->Draw();
+   c->SaveAs("check_fitdata_fit_vs_data.png");
+   c->SetLogy();
+   c->SaveAs("check_fitdata_fit_vs_data_log.png");
 }
 
 

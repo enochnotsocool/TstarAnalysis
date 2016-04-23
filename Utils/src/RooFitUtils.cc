@@ -10,6 +10,7 @@
 #include "RooPlot.h"
 #include "RooAbsPdf.h"
 #include "RooAbsData.h"
+#include "TAxis.h"
 
 TGraph* PlotOn( RooPlot* frame, RooAbsPdf* obj,
    const RooCmdArg& arg1,
@@ -22,7 +23,7 @@ TGraph* PlotOn( RooPlot* frame, RooAbsPdf* obj,
    return (TGraph*)frame->getObject( frame->numItems() -1 );
 }
 
-extern TGraph* PlotOn( RooPlot* frame , RooAbsData* obj,
+TGraph* PlotOn( RooPlot* frame , RooAbsData* obj,
    const RooCmdArg& arg1,
    const RooCmdArg& arg2,
    const RooCmdArg& arg3,
@@ -31,4 +32,19 @@ extern TGraph* PlotOn( RooPlot* frame , RooAbsData* obj,
 {
    obj->plotOn( frame, arg1, arg2, arg3, arg4, arg5 );
    return (TGraph*)frame->getObject( frame->numItems() -1 );
+}
+
+void SetFrame( RooPlot* frame, unsigned font_size )
+{
+   frame->GetXaxis()->SetLabelFont(43);
+   frame->GetXaxis()->SetLabelSize( font_size );
+   frame->GetXaxis()->SetTitleFont(43);
+   frame->GetXaxis()->SetTitleSize( font_size );
+   frame->GetXaxis()->SetTitleOffset( 1.2 );
+   frame->GetYaxis()->SetLabelFont(43);
+   frame->GetYaxis()->SetLabelSize( font_size);
+   frame->GetYaxis()->SetTitleFont(43);
+   frame->GetYaxis()->SetTitleSize( font_size );
+   frame->GetYaxis()->SetTitleOffset( 1.2 );
+   frame->SetTitle("");
 }

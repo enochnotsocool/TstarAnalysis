@@ -31,26 +31,31 @@ string GetCMDOutput( const string& cmd )
    return result;
 }
 
-int HasProcess( const string& x )
+int HasProcess( const string& x , const string& exclude )
 {
-   string cmd = "ps aux | grep ^${USER} | grep --invert-match grep | grep " + x + " | wc --lines";
+   string cmd = "ps aux | grep ^${USER}";
+   cmd += " | grep --invert-match grep ";
+   if( exclude != "" ) {
+      cmd += "| grep --invert-match  " + exclude ;
+   }
+   cmd += " | grep " + x ;
+   cmd += " | wc --lines";
+
    string ans = GetCMDOutput(cmd);
    return stoi(ans);
 }
 
-void WaitProcess( const string& x )
+void WaitProcess( const string& x , const string& exclude)
 {
-   int proc_count = HasProcess(x);
-   string time_string = CurrentDateTime();
    while(1){
+      int proc_count = HasProcess(x , exclude );
+      string time_string = CurrentDateTime();
       printf("\r[%s] Still %d instance(s) running..." ,
          time_string.c_str() ,
          proc_count );
       fflush(stdout);
       if( proc_count == 0 ){ break; }
       system("sleep 1");
-      time_string = CurrentDateTime();
-      proc_count = HasProcess(x);
    }
    printf("All Done!\n");
    fflush(stdout);

@@ -27,4 +27,6 @@ extern TGraph* PlotOn( RooPlot*, RooAbsData*,
    const RooCmdArg& = RooCmdArg::none(),
    const RooCmdArg& = RooCmdArg::none() );
 
+extern void SetFrame(RooPlot*,unsigned); // Setting common frame options
+
 #endif /* end of include guard: __ROOFIT_UTILS_HH__ */

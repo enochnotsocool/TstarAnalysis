@@ -11,16 +11,29 @@
 #include <string>
 
 extern void SetChannelType( const std::string& );
+extern std::string  ResultsDir();
 extern std::string  GetChannel();
 extern std::string  GetChannelPlotLabel();
 extern std::string  GetJsonFile();
 extern std::string  GetTexSummaryFile();
 extern std::string  GetKinematicPlotFile( const std::string& );
-extern std::string  GetRooFitPlot_Template_File();
-extern std::string  GetRooFitObj_Template_File();
-extern std::string  GetTemplate_CardFile( const std::string& );
-extern std::string  GetTemplate_PlotFile();
-extern std::string  GetTemplate_HiggCombineStoreFile( const std::string& , int );
-extern std::string  GetHiggCombineOutputFile( const std::string& , int );
+
+// Higgs combine related files
+extern void SetMethod( const std::string& );
+extern std::string GetMethod();
+extern std::string GetMethodLabel();
+extern std::string GetCardFile( const std::string& );
+extern std::string GetRooObjFile();
+extern std::string GetRooObjPlot( const std::string& );
+
+extern void SetHCMethod( const std::string& );
+extern std::string GetHCMethod();
+extern std::string HCRawOutputFile( int );
+extern std::string HCStoreFile( int );
+extern std::string LimitPlotFile();
+
+// Misc. Functions
+extern int GetSignalMass( const std::string& );
+
 
 #endif /* end of include guard: __FILENAME_HH__ */

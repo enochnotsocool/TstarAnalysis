@@ -74,6 +74,21 @@ double JsonLoader::GetStaticDouble( const string& label )
    return JsonParser().get<double>( label );
 }
 
+vector<string> JsonLoader::GetStaticStringList( const string& label )
+{
+   vector<string> ans;
+   BOOST_FOREACH( const ptree::value_type &v , JsonParser().get_child(label) ){
+      if( !v.first.empty() ){
+         cerr << "Warning! Skipping over illegal format at branch: (" << label
+         << ")  with index value: (" << v.first.data() << ")" << endl;
+         continue;
+      }
+      // cout << v.second.data() << endl;
+      ans.push_back( v.second.data() );
+   }
+   return ans;
+}
+
 //------------------------------------------------------------------------------
 //   Class Instance member helper functions
 //------------------------------------------------------------------------------

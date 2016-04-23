@@ -28,9 +28,18 @@ static vector<SampleRooFitMgr*> signal_list;
 //------------------------------------------------------------------------------
 void InitDataAndSignal();
 void InitMC();
-extern void MakeSimFit(SampleRooFitMgr*, SampleRooFitMgr*);
+
+// in src/RooFit_SimFit.cc
+extern void MakeSimFit(SampleRooFitMgr*, vector<SampleRooFitMgr*>);
+
+// in src/RooFit_SideBand.cc
+extern void MakeCheckPlot(SampleRooFitMgr*);
 extern void MakeSideBand(SampleRooFitMgr*,SampleRooFitMgr*);
+
+// in src/RooFit_MCTemlapte
+extern void MakeCheckPlot(SampleRooFitMgr*,SampleRooFitMgr*);
 extern void MakeTemplate(SampleRooFitMgr*,SampleRooFitMgr*,vector<SampleRooFitMgr*> );
+
 //------------------------------------------------------------------------------
 //   Main control flow
 //------------------------------------------------------------------------------
@@ -56,7 +65,7 @@ int main(int argc, char* argv[]) {
    }
 
    if(vm.count("help")) {
-      cerr << desc << "\n";
+      cerr << desc << endl;
       return 0;
    }
 
@@ -65,29 +74,33 @@ int main(int argc, char* argv[]) {
       SampleRooFitMgr::LoadJsonFile( GetJsonFile() );
    } else {
       cerr << "Settings for option [channel] not found!" << endl;
+      cerr << desc << endl;
       return 1;
    }
 
-   // InitDataAndSignal();
+   SampleRooFitMgr::x().setRange("FitRange",SampleRooFitMgr::MinFitMass(),SampleRooFitMgr::MaxMass());
    if( !vm.count("method") ){
       cerr << "options [method] not found!" << endl;
+      cerr << desc << endl;
       return 1;
    }
-
-   if( vm["method"].as<string>() == "SimFit" ){
+   if( vm["method"].as<string>().find("SimFit") != string::npos ){
       cout  << "Running SimFit Method!" << endl;
+      SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
-      for( auto& sample : signal_list ){
-         MakeSimFit(data,sample);
-      }
-   } else if( vm["method"].as<string>() == "Template" ){
+      MakeSimFit(data,signal_list);
+   } else if( vm["method"].as<string>().find("Template") != string::npos ){
       cout << "Running MC template method!" << endl;
+      SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
       InitMC();
       MakeTemplate(data,mc,signal_list);
-   } else if( vm["method"].as<string>() == "SideBand" ){
+      MakeCheckPlot(data,mc);
+   } else if( vm["method"].as<string>().find("SideBand") != string::npos ){
       cout << "Running side band method!" << endl;
+      SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
+      MakeCheckPlot(data);
       for( auto& sample : signal_list ){
          MakeSideBand(data,sample);
       }

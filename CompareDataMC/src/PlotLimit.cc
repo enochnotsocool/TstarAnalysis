@@ -1,13 +1,14 @@
 /*******************************************************************************
  *
- *  Filename    : Run_MCTemplate.cc
- *  Description : Interfacing with command line to run Higgs Combine Package
+ *  Filename    : PlotLimit.cc
+ *  Description : Macros For plotting confidence level limits
  *  Author      : Yi-Mu "Enoch" Chen [ ensc@hep1.phys.ntu.edu.tw ]
  *
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
 #include "TstarAnalysis/CompareDataMC/interface/PlotConfig.hh"
 #include "TstarAnalysis/Utils/interface/SystemUtils.hh"
+#include "TstarAnalysis/Utils/interface/SampleMgr.hh"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -26,54 +27,15 @@
 using namespace std;
 
 //------------------------------------------------------------------------------
-//   Setting constants
-//------------------------------------------------------------------------------
-const vector<string>  signal_list = {
-   "tstar_M700",
-   "tstar_M800",
-   "tstar_M900",
-   "tstar_M1000",
-   "tstar_M1100",
-   "tstar_M1200",
-   //   "tstar_M1300",
-   "tstar_M1400",
-   "tstar_M1500",
-   "tstar_M1600"
-};
-
-const string method = "Asymptotic";
-
-//------------------------------------------------------------------------------
 //   Helper functions
 //------------------------------------------------------------------------------
 extern int GetInt( const string& );
 
-int main(int argc, char* argv[]) {
+void MakeLimitPlot() {
 
-   if( argc != 2 ){
-      cerr << "Error! Expected exactly one arguement!" << endl;
-      return 1;
-   }
-   cout << "Making Higgs Combine Plots!" << endl;
-   SetChannelType( argv[1] );
+   SampleMgr::LoadJsonFile( GetJsonFile() );
+   const auto signal_list = SampleMgr::GetStaticStringList("SignalList");
 
-   for( const auto& signal : signal_list ){
-      char cmd[1024];
-      sprintf( cmd , "( combine -M %s -m %d %s &> /dev/null && mv %s %s )&" ,
-         method.c_str(),
-         GetInt(signal),
-         GetTemplate_CardFile(signal).c_str(),
-         GetHiggCombineOutputFile(method,GetInt(signal)).c_str(),
-         GetTemplate_HiggCombineStoreFile(method,GetInt(signal)).c_str()
-      );
-      printf( "%s" , cmd );
-      fprintf( stdout , "Submitting command for %s\n", signal.c_str() );
-      system( cmd );
-   }
-
-   WaitProcess("combine");
-
-   // Plotting the results
    const size_t binCount = signal_list.size();
    size_t bin = 0;
    double temp1;
@@ -85,8 +47,9 @@ int main(int argc, char* argv[]) {
    double one_sig_down[binCount] = {0};
    double two_sig_up[binCount] = {0};
    double two_sig_down[binCount] = {0};
+
    for( const auto& signal : signal_list ){
-      const string file_name = GetTemplate_HiggCombineStoreFile(method,GetInt(signal));
+      const string file_name = HCStoreFile(GetInt(signal));
       TFile* file = TFile::Open(file_name.c_str());
       if( !file ){
          fprintf(stderr,"Cannot open file (%s), skipping sample for %s\n" ,
@@ -118,7 +81,7 @@ int main(int argc, char* argv[]) {
       ++bin;
    }
 
-   TCanvas* c1                = new TCanvas("c1", "c1", CANVAS_WIDTH, CANVAS_HEIGHT );
+   TCanvas* c1                = new TCanvas("c1", "c1", CANVAS_WIDTH*1.2, CANVAS_HEIGHT );
    TMultiGraph* mg            = new TMultiGraph();
    TGraphAsymmErrors* one_sig = new TGraphAsymmErrors(binCount,mass,exp_lim,masserr,masserr,one_sig_down,one_sig_up);
    TGraphAsymmErrors* two_sig = new TGraphAsymmErrors(binCount,mass,exp_lim,masserr,masserr,two_sig_down,two_sig_up);
@@ -144,7 +107,9 @@ int main(int argc, char* argv[]) {
    obs->SetLineWidth(2);
    obs->SetLineStyle(1);
 
-   l->AddEntry( obs     , "CL_{s} Observed (2.256 fb^{-1})" , "l" );
+   char data_entry[1024];
+   sprintf( data_entry , "CL_{s} Observed (%.3lf fb^{-1})" , SampleMgr::TotalLuminosity()/1000. );
+   l->AddEntry( obs     , data_entry , "l" );
    l->AddEntry( exp     , "CL_{s} Expected"                 , "l" );
    l->AddEntry( one_sig , "CL_{s} Expected #pm 1 #sigma"    , "f" );
    l->AddEntry( two_sig , "CL_{s} Expected #pm 2 #sigma"    , "f" );
@@ -166,24 +131,19 @@ int main(int argc, char* argv[]) {
    mg->GetYaxis()->SetLabelSize(FONT_SIZE);
    mg->GetYaxis()->SetTitleFont(43);
    mg->GetYaxis()->SetTitleSize(FONT_SIZE);
+   mg->GetYaxis()->SetTitleOffset(1.2);
 
    TLatex tl;
    tl.SetNDC(kTRUE);
    tl.SetTextFont(43);
    tl.SetTextSize( FONT_SIZE + 4 );
    tl.SetTextAlign(11);
-   tl.DrawLatex( 0.1, 0.95 , "CMS at #sqrt{s} = 13TeV");
+   tl.DrawLatex( 0.1, 0.95 , ("CMS at #sqrt{s} = 13TeV" + GetMethodLabel()).c_str() );
    tl.SetTextAlign(31);
-   string channel_msg = "";
-   if( GetChannel().find("Muon") != string::npos ){
-      channel_msg="(#mu channel)";
-   } else if( GetChannel().find("Electron") != string::npos ){
-      channel_msg="(e channel)";
-   }
-   tl.DrawLatex( 0.9, 0.95 , channel_msg.c_str() );
+   tl.DrawLatex( 0.9, 0.95 , GetChannelPlotLabel().c_str() );
 
    //----- Saving and cleaning up  ------------------------------------------------
-   c1->SaveAs( GetTemplate_PlotFile().c_str() );
+   c1->SaveAs( LimitPlotFile().c_str() );
    delete one_sig;
    delete two_sig;
    delete obs;
@@ -191,7 +151,4 @@ int main(int argc, char* argv[]) {
    delete mg;
    delete l;
    delete c1;
-
-
-   return 0;
 }

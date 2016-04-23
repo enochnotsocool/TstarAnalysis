@@ -30,45 +30,44 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Static variables
 //------------------------------------------------------------------------------
-static RooRealVar m("m","m", 500 , 0, 1000 );
-static RooRealVar b("b","b", 200 , 0 ,1000 );
-static string roofit_file = GetRooFitObj_Template_File();
+static RooRealVar m = RooRealVar("m","m", 500 , 0, 1000 );
+static RooRealVar b = RooRealVar("b","b", 200 , 0 ,1000 );
+static RooRealVar p1 = RooRealVar("p1","p1",500,0,1000);
+static RooRealVar p2 = RooRealVar("p2","p2",500,0,1000);
+static RooRealVar p3 = RooRealVar("p3","p2",500,0,1000);
 static const string ws_name = "wspace";
 
 //------------------------------------------------------------------------------
 //   Helper variables
 //------------------------------------------------------------------------------
-void MakeBGFromMC( SampleRooFitMgr* );
-void MakeSignalPdf( SampleRooFitMgr* );
-void MakeTemplatePlots( SampleRooFitMgr* , SampleRooFitMgr*, SampleRooFitMgr* );
-void MakeCardFile(SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr*);
+static void MakeBGFromMC( SampleRooFitMgr* );
+static void MakeSignalPdf( SampleRooFitMgr* );
+static void MakeTemplatePlots( SampleRooFitMgr* , SampleRooFitMgr*, SampleRooFitMgr* );
+static void SaveRooWorkSpace( SampleRooFitMgr*, SampleRooFitMgr*, vector<SampleRooFitMgr*> );
+static void MakeCardFile(SampleRooFitMgr*, SampleRooFitMgr*, SampleRooFitMgr*);
 
 //------------------------------------------------------------------------------
 //   Function implemetations
 //------------------------------------------------------------------------------
 void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooFitMgr*> signal_list )
 {
-   MakeBGFromMC( bg );
+   MakeBGFromMC(bg);
    for( auto& signal : signal_list ){
       MakeSignalPdf( signal );
    }
    MakeTemplatePlots( data, bg, signal_list.front() );
 
-   for( auto& signal : signal_list ){
-      MakeCardFile(data,bg,signal);
-   }
    //------------------------------------------------------------------------------
    //   Saving all relavent obejcts by RooWorkSpace
    //------------------------------------------------------------------------------
-   roofit_file = GetRooFitObj_Template_File();
-   RooWorkspace ws( ws_name.c_str() , ws_name.c_str() );
-   ws.import( *(data->GetReduceDataSet("FitRange")) );
-   ws.import( *(bg->GetPdfFromAlias("fit")) );
-   for( auto& signal : signal_list ){
-      ws.import( *(signal->GetPdfFromAlias("fit")) );
-   }
-   ws.writeToFile( roofit_file.c_str() );
+   SaveRooWorkSpace( data, bg, signal_list );
 
+   //------------------------------------------------------------------------------
+   //   Making Higgs Combine Data Cards
+   //------------------------------------------------------------------------------
+   for( auto& signal : signal_list ){
+      MakeCardFile(data,bg,signal);
+   }
 
    //------------------------------------------------------------------------------
    //   Making RooDataSet only files
@@ -83,18 +82,27 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 }
 
 
+
+//------------------------------------------------------------------------------
+//  Helper function implementations
+//------------------------------------------------------------------------------
 void MakeBGFromMC( SampleRooFitMgr* bg )
 {
    const string bg_pdf_name = bg->MakePdfAlias( "fit" );
-   RooGenericPdf* bg_pdf = new RooGenericPdf(
+   RooGenericPdf* bg_pdf;
+
+   bg_pdf = new RooGenericPdf(
       bg_pdf_name.c_str(), bg_pdf_name.c_str(),
-      "1/(1+exp((x-m)/b))",
+      "1./(1.+TMath::Exp((x-m)/b))",
       RooArgSet(SampleRooFitMgr::x(),m,b) );
+
    bg_pdf->fitTo( *(bg->OriginalDataSet()) ,
       RooFit::Save() ,            // Suppressing output
       RooFit::SumW2Error(kTRUE),  // For Weighted dataset
-      RooFit::Range("FitRange")  // Fitting range
+      RooFit::Range("FitRange"),  // Fitting range
+      RooFit::Minos(kTRUE)
    );
+
    bg->AddPdf( bg_pdf );
    m.setConstant(kTRUE);
    b.setConstant(kTRUE);
@@ -104,10 +112,27 @@ void MakeBGFromMC( SampleRooFitMgr* bg )
 void MakeSignalPdf( SampleRooFitMgr* signal )
 {
    const string pdf_name = signal->MakePdfAlias( "fit" );
-   RooDataSet* sig_selc  = signal->MakeReduceDataSet( "FitRange" , RooFit::CutRange("FitRange") );
-   RooKeysPdf* sig_pdf   = new RooKeysPdf( pdf_name.c_str() , pdf_name.c_str() , SampleRooFitMgr::x() , *sig_selc );
+   RooDataSet*  sig_selc = signal->MakeReduceDataSet( "FitRange" , RooFit::CutRange("FitRange") );
+   RooKeysPdf*  sig_pdf  = new RooKeysPdf(
+      pdf_name.c_str(), pdf_name.c_str(),
+      SampleRooFitMgr::x(), *sig_selc,
+      RooKeysPdf::NoMirror, 2.
+   );
    signal->AddPdf( sig_pdf );
    return;
+}
+
+void SaveRooWorkSpace( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooFitMgr*> sig_list )
+{
+   const string roofit_file = GetRooObjFile();
+   cout << "Saving RooFit objects to " << roofit_file << endl;
+   RooWorkspace ws( ws_name.c_str() , ws_name.c_str() );
+   ws.import( *(data->GetReduceDataSet("FitRange")) );
+   ws.import( *(bg->GetPdfFromAlias("fit")) );
+   for( auto& signal : sig_list ){
+      ws.import( *(signal->GetPdfFromAlias("fit")) );
+   }
+   ws.writeToFile( roofit_file.c_str() );
 }
 
 
@@ -121,27 +146,17 @@ void MakeTemplatePlots( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFit
    RooAbsPdf*  bg_pdf         = bg->GetPdfFromAlias("fit");
 
    TGraph* bg_set_plot  = PlotOn( frame , bg_dataset , RooFit::DrawOption("B"));
-   TGraph* bg_pdf_plot  = PlotOn( frame , bg_pdf );
+   TGraph* bg_pdf_plot  = PlotOn( frame , bg_pdf , RooFit::Range("FitRange"));
    TGraph* sig_set_plot = PlotOn( frame , signal_dataset , RooFit::DrawOption("B") );
    TGraph* sig_pdf_plot = PlotOn( frame , signal_pdf );
    TGraph* data_plot    = PlotOn( frame , data_dataset );
-   TGraph* bg_pdf_norm_plot = PlotOn( frame , bg_pdf );
+   TGraph* bg_pdf_norm_plot = PlotOn( frame , bg_pdf, RooFit::Range("FitRange") );
 
    TCanvas* c1 = new TCanvas("c","c" , 650, 500 );
    frame->Draw();
    frame->SetMinimum(0.0001);
 
-   frame->GetXaxis()->SetLabelFont(43);
-   frame->GetXaxis()->SetLabelSize( FONT_SIZE );
-   frame->GetXaxis()->SetTitleFont(43);
-   frame->GetXaxis()->SetTitleSize( FONT_SIZE );
-   frame->GetXaxis()->SetTitleOffset( 1.2 );
-   frame->GetYaxis()->SetLabelFont(43);
-   frame->GetYaxis()->SetLabelSize( FONT_SIZE);
-   frame->GetYaxis()->SetTitleFont(43);
-   frame->GetYaxis()->SetTitleSize( FONT_SIZE );
-   frame->GetYaxis()->SetTitleOffset( 1.2 );
-   frame->SetTitle("");
+   SetFrame( frame , FONT_SIZE );
 
    bg_set_plot->SetFillStyle(3003);
    bg_set_plot->SetFillColorAlpha( kBlue , 1.0 );
@@ -154,12 +169,16 @@ void MakeTemplatePlots( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFit
    sig_pdf_plot->SetLineColor( kRed );
    bg_pdf_norm_plot->SetLineColor( kBlack );
 
+   char data_entry[1024];
+   char sig_entry[1024];
+   sprintf( data_entry, "Data (%.3lf fb^{-1})" , SampleRooFitMgr::TotalLuminosity()/1000. );
+   sprintf( sig_entry,  "t^{*} {}_{M_{t^{*}}=700GeV} (%.1lf pb)" , signal->Sample().CrossSection().CentralValue() );
    TLegend* leg = new TLegend(0.55,0.5,0.9,0.9);
-   leg->AddEntry( data_plot        , "Data (2.256 fb^{-1})" , "lp" );
+   leg->AddEntry( data_plot        , data_entry , "lp" );
    leg->AddEntry( bg_set_plot      , "MC Background (Not Normalized)" , "f" );
    leg->AddEntry( bg_pdf_plot      , "Fitted (Yield from MC)" , "l" );
    leg->AddEntry( bg_pdf_norm_plot , "Fitted (Normalized to Data)" , "l");
-   leg->AddEntry( sig_set_plot     , "t^{*} {}_{M_{t^{*}}=700GeV} (30 pb)" , "f" );
+   leg->AddEntry( sig_set_plot     , sig_entry , "f" );
    leg->AddEntry( sig_pdf_plot     , "Fitted Signal (RooKeysPdf)" , "l");
    leg->Draw();
    leg->SetTextSizePixels(FONT_SIZE);
@@ -171,12 +190,12 @@ void MakeTemplatePlots( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFit
    tl->SetTextAlign(11);
    tl->DrawLatex( 0.1, 0.93, "CMS at #sqrt{s} = 13TeV");
    tl->SetTextAlign(31);
-   tl->DrawLatex( 0.9, 0.93 , "(#mu channel)");
+   tl->DrawLatex( 0.9, 0.93 , GetChannelPlotLabel().c_str() );
    tl->SetTextAlign(33);
    tl->DrawLatex(0.53,0.85 , "f(m) = N #left(1 + exp#left( #frac{m-a}{b} #right)#right)^{-1}" );
 
 
-   c1->SaveAs( GetRooFitPlot_Template_File().c_str() );
+   c1->SaveAs( GetRooObjPlot("master").c_str() );
    delete leg;
    delete tl;
    delete c1;
@@ -185,7 +204,7 @@ void MakeTemplatePlots( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFit
 
 void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* signal )
 {
-   const string cardfile_name = GetTemplate_CardFile( signal->Name() );
+   const string cardfile_name = GetCardFile( signal->Name() );
    RooDataSet* data_obs       = data->GetReduceDataSet("FitRange");
    RooAbsPdf*  bg_pdf         = bg->GetPdfFromAlias("fit");
    RooDataSet* signal_dataset = signal->GetReduceDataSet("FitRange");
@@ -201,23 +220,23 @@ void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* 
 
    // Printing objects
    fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
-      "bg",
-      GetChannel().c_str() ,
-      roofit_file.c_str() ,
-      ws_name.c_str(),
-      bg_pdf->GetName() );
+   "bg",
+   GetChannel().c_str() ,
+   GetRooObjFile().c_str() ,
+   ws_name.c_str(),
+   bg_pdf->GetName() );
    fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
-      "sig",
-      GetChannel().c_str() ,
-      roofit_file.c_str() ,
-      ws_name.c_str(),
-      signal_pdf->GetName() );
+   "sig",
+   GetChannel().c_str() ,
+   GetRooObjFile().c_str() ,
+   ws_name.c_str(),
+   signal_pdf->GetName() );
    fprintf( cardfile , "shapes %10s %15s %30s %s:%s\n" ,
-      "data_obs",
-      GetChannel().c_str() ,
-      roofit_file.c_str() ,
-      ws_name.c_str(),
-      data_obs->GetName() );
+   "data_obs",
+   GetChannel().c_str() ,
+   GetRooObjFile().c_str() ,
+   ws_name.c_str(),
+   data_obs->GetName() );
    fprintf( cardfile , "----------------------------------------\n" );
 
    // Printing data correspondence
@@ -230,8 +249,8 @@ void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* 
    fprintf( cardfile , "%12s %15s %15s\n" , "process" , "sig", "bg" );
    fprintf( cardfile , "%12s %15s %15s\n" , "process" , "-1" , "1" );
    fprintf( cardfile , "%12s %15lf %15lf\n" , "rate",
-      signal_dataset->sumEntries() ,
-      data_obs->sumEntries() );
+   signal_dataset->sumEntries(),
+   data_obs->sumEntries() );
 
    // Listing Nuisance parameters
    fprintf( cardfile , "----------------------------------------\n" );
@@ -239,5 +258,38 @@ void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* bg, SampleRooFitMgr* 
    fprintf( cardfile, "%8s lnN %15s %15s\n" , "Lumi"   , "1.05"          , "1.05" );
    fprintf( cardfile, "%8s lnN %15s %15s\n" , "sig_unc", sig_unc.c_str() , "--"   );
    fprintf( cardfile, "%8s lnN %15s %15s\n" , "bg_unc" , "--"            , "1.05" );
+
+   cout << "Writing to " << cardfile_name << "..." << endl;
    fclose( cardfile );
+}
+
+void MakeCheckPlot(SampleRooFitMgr* data, SampleRooFitMgr* mc)
+{
+   TCanvas* c1 = new TCanvas("c1","c1",CANVAS_WIDTH,CANVAS_HEIGHT);
+   TLegend* l1 = new TLegend(0.55,0.5,0.9,0.9);
+   RooPlot* frame_1 = SampleRooFitMgr::x().frame();
+   TGraph* mc_set_plot = PlotOn( frame_1 , mc->OriginalDataSet() );
+   TGraph* pdf_plot    = PlotOn( frame_1 , mc->GetPdfFromAlias("fit") , RooFit::Range("FitRange") );
+   frame_1->Draw();
+   frame_1->SetMinimum(0.3);
+   l1->AddEntry(mc_set_plot,"MC Template Background","lp");
+   l1->AddEntry(pdf_plot   ,"MC Template fit","l");
+   l1->Draw();
+   c1->SaveAs( GetRooObjPlot("fitmc_vs_mc").c_str() );
+   c1->SetLogy();
+   c1->SaveAs( GetRooObjPlot("fitmc_vs_mc_log").c_str() );
+
+   TCanvas* c2 = new TCanvas("c2","c2",CANVAS_WIDTH,CANVAS_HEIGHT);
+   TLegend* l2 = new TLegend(0.55,0.5,0.9,0.9);
+   RooPlot* frame_2 = SampleRooFitMgr::x().frame();
+   TGraph* data_set_plot = PlotOn( frame_2 , data->OriginalDataSet() );
+   TGraph* pdf_plot_2    = PlotOn( frame_2 , mc->GetPdfFromAlias("fit"), RooFit::Range("FitRange") );
+   frame_2->Draw();
+   frame_2->SetMinimum(0.3);
+   l2->AddEntry(data_set_plot,"Data","lp");
+   l2->AddEntry(pdf_plot_2 ,"MC Template fit (Norm)","l");
+   l2->Draw();
+   c2->SaveAs( GetRooObjPlot("fitmc_vs_data").c_str() );
+   c2->SetLogy();
+   c2->SaveAs( GetRooObjPlot("fitmc_vs_data_log").c_str() );
 }

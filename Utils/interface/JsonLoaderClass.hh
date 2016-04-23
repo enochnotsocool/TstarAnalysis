@@ -28,6 +28,7 @@ public:
 
    // Methods for accessing additional settings
    static std::string GetStaticString( const std::string& );
+   static std::vector<std::string> GetStaticStringList( const std::string& );
    static double      GetStaticDouble( const std::string& );
    std::string GetString( const std::string& ) const ;
    double      GetDouble( const std::string& ) const ;

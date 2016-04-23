@@ -25,17 +25,23 @@ SampleHistMgr::SampleHistMgr( const string& name ):
    SampleGroup( name )
 {
    _histlist.clear();
-   AddHist( "LepPt"     , "Lepton {P_{T}}"           , "GeV/c"   , 48 , 20   , 500. );
-   AddHist( "LepEta"    , "Lepton #eta"              , ""        , 75 , -2.5 , 5.0  );
-   AddHist( "Jet1Pt"    , "First Leading Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
-   AddHist( "Jet2Pt"    , "Second Leading Jet P_{T}" , "GeV/c"   , 60 , 30   , 1000. );
-   AddHist( "Jet1Eta"   , "First Leading Jet #eta"   , ""        , 75 , -2.5 , 5.0  );
-   AddHist( "Jet2Eta"   , "Second Leading Jet #eta"  , ""        , 75 , -2.5 , 5.0  );
-   AddHist( "JetNum"    , "Number of Jets"           , ""        , 5  , 5    , 12   );
-   AddHist( "MET"       , "Missing E_{T}"            , "GeV"     , 50 , 0    , 500. );
-   AddHist( "METPhi"    , "Missing E_{T} #phi"       , ""        , 96 , -3.2 , 6.4  );
-   AddHist( "TstarMass" , "M_{t+g}"                  , "GeV/c^2" , 50 , 0    , 2000 );
-   AddHist( "ChiSq"     , "#chi^{2}"                 , ""        , 50 , 0    , 10000 );
+   AddHist( "LepPt"     , "Lepton {P_{T}}"            , "GeV/c"   , 48 , 20   , 500. );
+   AddHist( "LepEta"    , "Lepton #eta"               , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "Jet1Pt"    , "First Leading Jet P_{T}"   , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "Jet2Pt"    , "Second Leading Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "Jet1Eta"   , "First Leading Jet #eta"    , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "Jet2Eta"   , "Second Leading Jet #eta"   , ""        , 75 , -2.5 , 5.0  );
+   AddHist( "JetNum"    , "Number of Jets"            , ""        , 5  , 5    , 12   );
+   AddHist( "MET"       , "Missing E_{T}"             , "GeV"     , 50 , 0    , 500. );
+   AddHist( "METPhi"    , "Missing E_{T} #phi"        , ""        , 96 , -3.2 , 6.4  );
+   AddHist( "TstarMass" , "M_{t+g}"                   , "GeV/c^2" , 50 , 0    , 2000 );
+   AddHist( "ChiSq"     , "#chi^{2}"                  , ""        , 50 , 0    , 10000 );
+   AddHist( "Jet3Pt"    , "Third Jet P_{T}"           , "GeV/c"   , 60 , 30   , 700.  );
+   AddHist( "Jet4Pt"    , "Fourth Jet P_{T}"          , "GeV/c"   , 60 , 30   , 600. );
+   AddHist( "Jet5Pt"    , "Fifth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
+   AddHist( "Jet6Pt"    , "Sixth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
+   AddHist( "LepGluonPt", "Leptonic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
+   AddHist( "HadGluonPt", "Hadronic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
 
    for( auto& sample : SampleList() ){
       FillHistograms(sample);
@@ -97,12 +103,18 @@ void SampleHistMgr::FillHistograms( SampleMgr& sample )
       GetHist("Jet1Eta")->Fill( jetHandle->at(0).eta() , total_weight );
       GetHist("Jet2Pt")->Fill( jetHandle->at(1).pt()   , total_weight );
       GetHist("Jet2Eta")->Fill( jetHandle->at(1).eta() , total_weight );
+      GetHist("Jet3Pt")->Fill( jetHandle->at(2).pt()   , total_weight );
+      GetHist("Jet4Pt")->Fill( jetHandle->at(3).pt()   , total_weight );
+      GetHist("Jet5Pt")->Fill( jetHandle->at(4).pt()   , total_weight );
+      GetHist("Jet6Pt")->Fill( jetHandle->at(5).pt()   , total_weight );
 
       GetHist("MET")->Fill( metHandle->front().pt()     , total_weight );
       GetHist("METPhi")->Fill( metHandle->front().phi() , total_weight );
 
       GetHist("TstarMass")->Fill( chisqHandle->TstarMass() , total_weight );
       GetHist("ChiSq")->Fill( chisqHandle->ChiSquare()     , total_weight );
+      GetHist("LepGluonPt")->Fill( (chisqHandle->LeptonicTstar() - chisqHandle->LeptonicTop()).Pt() , total_weight  );
+      GetHist("HadGluonPt")->Fill( (chisqHandle->HadronicTstar() - chisqHandle->HadronicTop()).Pt() , total_weight  );
    }
    cout << "Done!" << endl;
 

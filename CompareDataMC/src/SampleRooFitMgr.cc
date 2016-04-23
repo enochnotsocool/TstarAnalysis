@@ -17,12 +17,12 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Static member function delcarations
 //------------------------------------------------------------------------------
-static const double minmass    = 0.;
+static const double minmass    = 350.;
 static const double minfitmass = 350.;
 static const double maxmass    = 3000.;
 static const double minweight  = -10000.;
 static const double maxweight  =  10000.;
-RooRealVar SampleRooFitMgr::_x( "x" , "M_{t+g}"      , minmass     , maxmass , "GeV/c^{2}" );
+RooRealVar SampleRooFitMgr::_x( "x" , "M_{t+g}"      , minmass   , maxmass , "GeV/c^{2}" );
 RooRealVar SampleRooFitMgr::_w( "w" , "event_weight" , minweight , maxweight , "");
 double SampleRooFitMgr::MinMass()    { return minmass; }
 double SampleRooFitMgr::MinFitMass() { return minfitmass; }
