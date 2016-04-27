@@ -35,13 +35,11 @@ string ResultsDir() { return work_dir + "/results/" + channel_name + "/" ; }
 string GetTexSummaryFile() { return ResultsDir() + "summary.tex" ; }
 string GetKinematicPlotFile( const string& plot_name ) { return ResultsDir() + plot_name + ".png"; }
 
-string GetRooFitPlot_Template_File(){ return ResultsDir() + "RooFit_MCTemplate" +  ".png"; }
-string GetRooFitObj_Template_File(){ return ResultsDir() + "RooFit_MCTemplate" + ".root"; }
-
 //------------------------------------------------------------------------------
-//   Higgs Combine Related files
+//   RooFit Related functions
 //------------------------------------------------------------------------------
 static string method_name ;
+static string fit_func;
 
 void SetMethod( const string& x ) { method_name = x ; }
 
@@ -50,20 +48,46 @@ string GetMethod() { return method_name; }
 string GetMethodLabel()
 {
    if ( method_name == "Template") {
-      return "(MC template)";
+      return "MC template";
    } else if( method_name == "SimFit" ){
-      return "(simultaneous fit)";
+      return "simultaneous fit";
    } else {
       return "";
    }
 }
 
+void SetFitFunc( const string& x ) { fit_func = x ; }
+
+string GetFitFunc() { return fit_func; }
+
+string GetFitFuncTag()
+{
+   if( fit_func == "Fermi" ){
+      return "Fermi function";
+   } else if( fit_func == "Exo" ){
+      return "EXO function";
+   } else {
+      return "";
+   }
+}
+
+string GetFitFuncFormula()
+{
+   if( fit_func == "Fermi" ){
+      return "f(m) = N #left(1 + exp#left( #frac{m-a}{b} #right)#right)^{-1}";
+   } else if ( fit_func == "Exo" ){
+      return "f(m) = N #left( (1-m)^{p_{1}} #right) / #left( m^{(p_{2} + p_{3} ln(m))} #right)";
+   }
+   return "";
+}
+
 string GetCardFile( const string& masspoint )
 {
    char buffer[1024];
-   sprintf( buffer, "%s/card_%s_%s.txt" ,
+   sprintf( buffer, "%s/card_%s_%s_%s.txt" ,
       ResultsDir().c_str(),
       GetMethod().c_str(),
+      GetFitFunc().c_str(),
       masspoint.c_str()
    );
    return buffer;
@@ -72,9 +96,10 @@ string GetCardFile( const string& masspoint )
 string GetRooObjFile()
 {
    char buffer[1024];
-   sprintf( buffer, "%s/roofitobj_%s.root",
+   sprintf( buffer, "%s/roofitobj_%s_%s.root",
       ResultsDir().c_str(),
-      GetMethod().c_str()
+      GetMethod().c_str(),
+      GetFitFunc().c_str()
    );
    return buffer;
 }
@@ -82,9 +107,10 @@ string GetRooObjFile()
 string GetRooObjPlot( const string& tags )
 {
    char buffer[1024];
-   sprintf( buffer, "%s/roofitplots_%s_%s.png",
+   sprintf( buffer, "%s/roofitplots_%s_%s_%s.png",
       ResultsDir().c_str(),
       GetMethod().c_str(),
+      GetFitFunc().c_str(),
       tags.c_str()
    );
    return buffer ;
@@ -114,9 +140,10 @@ string HCRawOutputFile( int mass )
 string HCStoreFile( int mass )
 {
    char buffer[1024];
-   sprintf( buffer , "%s/higgscombine_%s_%s_%d.root" ,
+   sprintf( buffer , "%s/higgscombine_%s_%s_%s_%d.root" ,
       ResultsDir().c_str(),
       GetMethod().c_str(),
+      GetFitFunc().c_str(),
       GetHCMethod().c_str(),
       mass  );
    return buffer;
@@ -125,9 +152,10 @@ string HCStoreFile( int mass )
 string LimitPlotFile()
 {
    char buffer[1024];
-   sprintf( buffer , "%s/limit_%s_%s.png",
+   sprintf( buffer , "%s/limit_%s_%s_%s.png",
       ResultsDir().c_str(),
       GetMethod().c_str(),
+      GetFitFunc().c_str(),
       GetHCMethod().c_str()
    );
    return buffer;

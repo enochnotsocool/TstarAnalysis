@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
       ("help","produce help message and exit")
       ("channel"       , opt::value<string>(), "Channel to run" )
       ("method"        , opt::value<string>(), "Which fitting method results to plot" )
+      ("fitfunc"       , opt::value<string>(), "Which fitting function to to plot")
       ("combine_method", opt::value<string>(), "Which higgs combine method to use" )
       ("higgs_options" , opt::value<string>(), "Additional option for higgs combine package" )
       ("runcombine"    , "Re-run higgs combine package with higgs combine method")
@@ -66,6 +67,13 @@ int main(int argc, char* argv[]) {
       return 1;
    }
    SetMethod( vm["method"].as<string>() );
+
+   if( !vm.count("fitfunc") ){
+      cerr << "Error! [method] not set!" << endl;
+      cerr << desc << endl;
+      return 1;
+   }
+   SetFitFunc( vm["fitfunc"].as<string>() );
 
    if( !vm.count("combine_method") ){
       cerr << "Error! [combine_method] not set!" << endl;

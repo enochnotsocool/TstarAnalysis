@@ -13,19 +13,18 @@
 #include "RooAbsPdf.h"
 #include "RooAbsData.h"
 
-extern TGraph* PlotOn( RooPlot*, RooAbsPdf*,
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none() );
+template <class T>
+TGraph* PlotOn( RooPlot* frame , T* rooobj,
+   const RooCmdArg& arg1= RooCmdArg::none(),
+   const RooCmdArg& arg2= RooCmdArg::none(),
+   const RooCmdArg& arg3= RooCmdArg::none(),
+   const RooCmdArg& arg4= RooCmdArg::none(),
+   const RooCmdArg& arg5= RooCmdArg::none() )
+{
+   rooobj->plotOn( frame, arg1, arg2, arg3, arg4, arg5 );
+   return (TGraph*)frame->getObject( frame->numItems() -1 );
+}
 
-extern TGraph* PlotOn( RooPlot*, RooAbsData*,
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none(),
-   const RooCmdArg& = RooCmdArg::none() );
 
 extern void SetFrame(RooPlot*,unsigned); // Setting common frame options
 

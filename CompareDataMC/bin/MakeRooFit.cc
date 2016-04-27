@@ -53,6 +53,7 @@ int main(int argc, char* argv[]) {
       ("help","produce help message and exit")
       ("channel", opt::value<string>(), "Channel to run" )
       ("method" , opt::value<string>(), "Which fitting method to run" )
+      ("fitfunc", opt::value<string>(), "Which fitting function to use")
    ;
 
    try{
@@ -79,24 +80,34 @@ int main(int argc, char* argv[]) {
    }
 
    SampleRooFitMgr::x().setRange("FitRange",SampleRooFitMgr::MinFitMass(),SampleRooFitMgr::MaxMass());
+
    if( !vm.count("method") ){
       cerr << "options [method] not found!" << endl;
       cerr << desc << endl;
       return 1;
    }
-   if( vm["method"].as<string>().find("SimFit") != string::npos ){
+
+   if( !vm.count("fitfunc") ) {
+      cerr << "option [fitfunc] not found!" << endl;
+      cerr << desc << endl;
+      return 1;
+   } else {
+      SetFitFunc( vm["fitfunc"].as<string>() );
+   }
+
+   if( vm["method"].as<string>() == "SimFit"  ){
       cout  << "Running SimFit Method!" << endl;
       SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
       MakeSimFit(data,signal_list);
-   } else if( vm["method"].as<string>().find("Template") != string::npos ){
+   } else if( vm["method"].as<string>() == "Template" ){
       cout << "Running MC template method!" << endl;
       SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
       InitMC();
       MakeTemplate(data,mc,signal_list);
       MakeCheckPlot(data,mc);
-   } else if( vm["method"].as<string>().find("SideBand") != string::npos ){
+   } else if( vm["method"].as<string>() == "SideBand"  ){
       cout << "Running side band method!" << endl;
       SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
@@ -111,6 +122,7 @@ int main(int argc, char* argv[]) {
 
    return 0;
 }
+
 
 //------------------------------------------------------------------------------
 //   Helper function implementations

@@ -6,6 +6,7 @@
  *
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
+#include "TstarAnalysis/CompareDataMC/interface/MakePDF.hh"
 #include "TstarAnalysis/CompareDataMC/interface/FileNames.hh"
 #include "TstarAnalysis/CompareDataMC/interface/PlotConfig.hh"
 
@@ -30,11 +31,6 @@ using namespace std;
 //------------------------------------------------------------------------------
 //   Static variables
 //------------------------------------------------------------------------------
-static RooRealVar m = RooRealVar("m","m", 500 , 0, 1000 );
-static RooRealVar b = RooRealVar("b","b", 200 , 0 ,1000 );
-static RooRealVar p1 = RooRealVar("p1","p1",500,0,1000);
-static RooRealVar p2 = RooRealVar("p2","p2",500,0,1000);
-static RooRealVar p3 = RooRealVar("p3","p2",500,0,1000);
 static const string ws_name = "wspace";
 
 //------------------------------------------------------------------------------
@@ -88,13 +84,15 @@ void MakeTemplate( SampleRooFitMgr* data, SampleRooFitMgr* bg, vector<SampleRooF
 //------------------------------------------------------------------------------
 void MakeBGFromMC( SampleRooFitMgr* bg )
 {
-   const string bg_pdf_name = bg->MakePdfAlias( "fit" );
    RooGenericPdf* bg_pdf;
 
-   bg_pdf = new RooGenericPdf(
-      bg_pdf_name.c_str(), bg_pdf_name.c_str(),
-      "1./(1.+TMath::Exp((x-m)/b))",
-      RooArgSet(SampleRooFitMgr::x(),m,b) );
+   if( GetFitFunc() == "Exo" ){
+      bg_pdf = MakeExo( bg, "fit" );
+   } else if( GetFitFunc() == "Fermi" ){
+      bg_pdf = MakeFermi( bg, "fit" );
+   } else {
+      bg_pdf = MakeFermi( bg, "fit" );
+   }
 
    bg_pdf->fitTo( *(bg->OriginalDataSet()) ,
       RooFit::Save() ,            // Suppressing output
@@ -104,8 +102,6 @@ void MakeBGFromMC( SampleRooFitMgr* bg )
    );
 
    bg->AddPdf( bg_pdf );
-   m.setConstant(kTRUE);
-   b.setConstant(kTRUE);
    return ;
 }
 

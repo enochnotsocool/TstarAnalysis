@@ -18,13 +18,21 @@ extern std::string  GetJsonFile();
 extern std::string  GetTexSummaryFile();
 extern std::string  GetKinematicPlotFile( const std::string& );
 
-// Higgs combine related files
+// RooFit Method Related
 extern void SetMethod( const std::string& );
 extern std::string GetMethod();
 extern std::string GetMethodLabel();
+
+extern void SetFitFunc( const std::string& );
+extern std::string GetFitFunc();
+extern std::string GetFitFuncTag();
+extern std::string GetFitFuncFormula();
+
 extern std::string GetCardFile( const std::string& );
 extern std::string GetRooObjFile();
 extern std::string GetRooObjPlot( const std::string& );
+
+
 
 extern void SetHCMethod( const std::string& );
 extern std::string GetHCMethod();
