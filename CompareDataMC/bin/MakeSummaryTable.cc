@@ -73,8 +73,8 @@ int main(int argc, char* argv[])
    sep_index.push_back( all_samples.size() );
 
    unsigned obs = 0;
-   obs += SampleMgr("Data_1").EventsInFile();
-   obs += SampleMgr("Data_2").EventsInFile();
+   obs += SampleMgr("Run2015D").EventsInFile();
+   obs += SampleMgr("Run2015C").EventsInFile();
 
    Parameter obs_yield(obs,0,0);
    Parameter exp_yield(0,0,0);

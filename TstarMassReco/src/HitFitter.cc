@@ -31,6 +31,7 @@ static const edm::FileInPath defaultBJetFile( "TopQuarkAnalysis/TopHitFit/data/r
 //   Constructor and Destructor
 //------------------------------------------------------------------------------
 HitFitter::HitFitter( const edm::ParameterSet& iConfig ):
+   _best_result(NULL),
    _debug( iConfig.getUntrackedParameter<int>( "Debug" , 0 ) )
 {
    if( _debug ) { cout << "Getting Top_Fit variables.... " << endl ; }
@@ -107,6 +108,7 @@ void HitFitter::RunPermutations()
    double fittedTopMass2;
    double sumTopMass;
    double chiSquare;
+   double min_ChiSquare = 10000000000000.;
    Column_Vector pullx;
    Column_Vector pully;
 
@@ -160,10 +162,13 @@ void HitFitter::RunPermutations()
             fittedTopMass2,
             sumTopMass,
             pullx,
-            pully );
+            pully
+      );
 
-      // Store all results for now
-      _resultList.push_back( Fit_Result(
+      if( chiSquare < min_ChiSquare ){
+         min_ChiSquare = chiSquare;
+         if( _best_result ) { delete _best_result; }
+         _best_result = new Fit_Result(
                chiSquare,
                hitFitEvent,
                pullx,
@@ -171,48 +176,17 @@ void HitFitter::RunPermutations()
                fittedWHadronMass,
                fittedTopMass,
                fittedTopMass2,
-               sumTopMass ));
-
+               sumTopMass
+         );
+      }
    } while ( next_permutation( jet_type_list.begin() , jet_type_list.end() ) );
 }
 
 void HitFitter::ClearAll()
 {
    if( _debug ) { cout << "Deleting all per-event results" << endl; }
-   _resultList.clear();
    _btagJetList.clear();
    _lightJetList.clear();
-}
-
-const hitfit::Fit_Result& HitFitter::BestResult() const
-{
-   unsigned min_index  = -1;
-   double min_ChiSquare = 100000000000.;
-   double this_ChiSquare;
-
-   if( _debug ) { cout << "Getting Best Results out of" << _resultList.size() << endl; }
-   for( unsigned i = 0; i < _resultList.size() ; ++i ){
-      this_ChiSquare = _resultList[i].chisq() ;
-      if( _debug ) {
-         if( this_ChiSquare <= 0. ){
-            cout << "Found negative results at " << i << endl;
-         } else if( this_ChiSquare > 100000000000. ){
-            cout << "Found Huge chi square at " << i << endl;
-         }
-      }
-      if( this_ChiSquare < min_ChiSquare && this_ChiSquare > 0.0 ){
-         if( _debug > 2 ) { cout << "Best Result at" << i << endl; }
-         min_index = i;
-         min_ChiSquare = this_ChiSquare;
-      }
-   }
-   if( min_index < _resultList.size() ) {
-      if( _debug ) { cout << "Returning index "  << min_index << endl;  }
-      return _resultList[min_index];
-   } else {
-      cerr << "Warning! Legal Results found! Returning first in list" << endl;
-      return _resultList[0];
-   }
 }
 
 //------------------------------------------------------------------------------

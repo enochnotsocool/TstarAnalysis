@@ -51,6 +51,10 @@ string GetMethodLabel()
       return "MC template";
    } else if( method_name == "SimFit" ){
       return "simultaneous fit";
+   } else if( method_name == "BiasTemplate" ){
+      return "bias check/template";
+   } else if( method_name == "BiasSimFit" ){
+      return "bias check/simultaneous fit";
    } else {
       return "";
    }
@@ -71,6 +75,7 @@ string GetFitFuncTag()
    }
 }
 
+
 string GetFitFuncFormula()
 {
    if( fit_func == "Fermi" ){
@@ -79,6 +84,28 @@ string GetFitFuncFormula()
       return "f(m) = N #left( (1-m)^{p_{1}} #right) / #left( m^{(p_{2} + p_{3} ln(m))} #right)";
    }
    return "";
+}
+
+string GetFitResults()
+{
+   char buffer[1024];
+   sprintf( buffer, "%s/fitresults_%s_%s.root",
+      ResultsDir().c_str(),
+      GetMethod().c_str(),
+      GetFitFunc().c_str()
+   );
+   return buffer;
+}
+
+string GetFitCompare( const string& x )
+{
+   char buffer[1024];
+   sprintf( buffer, "%s/fitresults_%s_%s.png",
+      ResultsDir().c_str(),
+      GetFitFunc().c_str(),
+      x.c_str()
+   );
+   return buffer;
 }
 
 string GetCardFile( const string& masspoint )
@@ -164,6 +191,8 @@ string LimitPlotFile()
 //------------------------------------------------------------------------------
 //   Misc. Functions
 //------------------------------------------------------------------------------
+string data_set_name = "";
+
 int GetSignalMass( const string& name )
 {
    string ans_string;
@@ -173,5 +202,14 @@ int GetSignalMass( const string& name )
       }
    }
    return stoi(ans_string);
+}
 
+string GetDataSetName()
+{
+   return data_set_name;
+}
+
+void SetDataSetName( const string& x )
+{
+   data_set_name = x;
 }

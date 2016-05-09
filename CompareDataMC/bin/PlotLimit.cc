@@ -45,7 +45,8 @@ int main(int argc, char* argv[]) {
       opt::notify(vm);
    } catch( boost::exception& e ){
       cerr << "Error parsing command!" << endl;
-      cerr << boost::diagnostic_information(e);
+      cerr << boost::diagnostic_information(e) << endl;
+      cerr << desc << endl;
       return 1;
    }
 

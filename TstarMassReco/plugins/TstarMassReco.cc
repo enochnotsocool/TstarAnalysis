@@ -109,25 +109,25 @@ void TstarMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
 
    //----- HitFitter -----
    _hitfitter.ClearAll();
-   // _hitfitter.SetMET( metList.front().pt() , metList.front().phi() );
-   // for( const auto& mu : muList ){
-   //    _hitfitter.SetLepton( mu.pt(), mu.eta(), mu.phi(), mu.energy() , ISMUON );
-   // }
-   // for( const auto& el : elecList ){
-   //    _hitfitter.SetLepton( el.pt(), el.eta(), el.phi(), el.energy() , ISELECTRON );
-   // }
-   // for( const auto& jet : jetList ){
-   //    if( jet.eta() > 2.4 ){
-   //       std::cout << "Weird Jet Found!" << std::endl;
-   //    }
-   //    if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
-   //       _hitfitter.AddBTagJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
-   //    }else{
-   //       _hitfitter.AddLightJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
-   //    }
-   // }
-   // _hitfitter.RunPermutations();
-   // _hitfit->MakeResult( _hitfitter.BestResult() );
+   _hitfitter.SetMET( metList.front().pt() , metList.front().phi() );
+   for( const auto& mu : muList ){
+    _hitfitter.SetLepton( mu.pt(), mu.eta(), mu.phi(), mu.energy() , ISMUON );
+   }
+   for( const auto& el : elecList ){
+    _hitfitter.SetLepton( el.pt(), el.eta(), el.phi(), el.energy() , ISELECTRON );
+   }
+   for( const auto& jet : jetList ){
+    if( jet.eta() > 2.4 ){
+       std::cout << "Weird Jet Found!" << std::endl;
+    }
+    if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
+       _hitfitter.AddBTagJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
+    }else{
+       _hitfitter.AddLightJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
+    }
+   }
+   _hitfitter.RunPermutations();
+   _hitfit->MakeResult( *(_hitfitter.GetBest()) );
 
    iEvent.put( _chisq , "ChiSquareResult" );
    iEvent.put( _hitfit, "HitFitResult");

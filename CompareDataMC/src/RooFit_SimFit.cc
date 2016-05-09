@@ -14,6 +14,7 @@
 
 
 #include <stdio.h>
+#include <fstream>
 
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
@@ -22,6 +23,8 @@
 #include "RooGenericPdf.h"
 #include "RooFitResult.h"
 
+#include "TAxis.h"
+#include "TFile.h"
 #include "TCanvas.h"
 #include "TLegend.h"
 #include "TLatex.h"
@@ -32,35 +35,34 @@ using namespace std;
 //   Static helper variables
 //------------------------------------------------------------------------------
 static const string ws_name = "wspace";
-static vector<RooFitResult*> results;
 
 //------------------------------------------------------------------------------
-//   Helper static variables
+//   Helper static functions
 //------------------------------------------------------------------------------
-static RooFitResult* FitPDFs( SampleRooFitMgr*, SampleRooFitMgr* );
-static void MakeValidationPlot( SampleRooFitMgr*, SampleRooFitMgr*, RooFitResult* );
-static void MakeCardFile( SampleRooFitMgr*, SampleRooFitMgr* );
-static void SaveRooWorkSpace(SampleRooFitMgr*,vector<SampleRooFitMgr*>);
+namespace smft {
+   RooFitResult* FitPDFs( SampleRooFitMgr*, SampleRooFitMgr* );
+   void MakeValidationPlot( SampleRooFitMgr*, SampleRooFitMgr*, RooFitResult* );
+   void MakeCardFile( SampleRooFitMgr*, SampleRooFitMgr* );
+   void SaveRooWorkSpace(SampleRooFitMgr*,vector<SampleRooFitMgr*>&, vector<RooFitResult*>& );
+};
 
-void MakeSimFit( SampleRooFitMgr* data, vector<SampleRooFitMgr*> signal_list )
+void MakeSimFit( SampleRooFitMgr* data, vector<SampleRooFitMgr*>& signal_list )
 {
+   using namespace smft;
+   vector<RooFitResult*> results_list;
    for( auto& signal : signal_list ){
       RooFitResult* err = FitPDFs( data, signal );
       MakeValidationPlot( data, signal, err );
       MakeCardFile( data,signal);
-      results.push_back( err );
+      results_list.push_back( err );
    }
-   var_mgr.SetConstant();
-   SaveRooWorkSpace(data,signal_list);
-   for( auto& a : results ){
-      a->printMultiline(cout,0);
-   }
+   SaveRooWorkSpace(data,signal_list,results_list);
 }
 
 //------------------------------------------------------------------------------
 //   RooFit control flow
 //------------------------------------------------------------------------------
-RooFitResult* FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig )
+RooFitResult* smft::FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig )
 {
    const string model_name = data->MakePdfAlias( sig->Name() );
    RooGenericPdf* bg_pdf   = NULL;
@@ -83,23 +85,29 @@ RooFitResult* FitPDFs( SampleRooFitMgr* data , SampleRooFitMgr* sig )
       RooArgList(*bg_pdf,*sig_pdf),
       RooArgList(*nb,*ns)
    );
+
+   RooDataSet* data_to_fit = data->GetDataFromAlias( GetDataSetName() );
+
    RooFitResult* err = model->fitTo(
-      *(data->GetReduceDataSet("FitRange")),
+      *(data_to_fit),
       RooFit::Range("FitRange"),
       RooFit::Minos(kTRUE),
-      RooFit::Save()
+      RooFit::Save(),
+      RooFit::Verbose(kFALSE),
+      RooFit::PrintLevel(-1)
    );
+   err->SetName( ("results_"+sig->Name()).c_str() );
    data->AddPdf( model );
-
+   var_mgr.SetConstant();
    return err;
 }
 
 //------------------------------------------------------------------------------
 //   Making data card
 //------------------------------------------------------------------------------
-void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* sig )
+void smft::MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* sig )
 {
-   RooAddPdf* model    = (RooAddPdf*)(data->GetPdfFromAlias( sig->Name() )) ;
+   RooAddPdf* model  = (RooAddPdf*)(data->GetPdfFromAlias( sig->Name() )) ;
    const Parameter bg_strength = Parameter(
       ((RooRealVar*)(model->coefList().at(0)))->getVal(),
       ((RooRealVar*)(model->coefList().at(0)))->getErrorHi(),
@@ -107,7 +115,7 @@ void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* sig )
    );
    const Parameter sig_strength = sig->Sample().ExpectedYield();
 
-   RooDataSet* data_obs    = data->GetReduceDataSet("FitRange");
+   RooDataSet* data_obs    = data->GetReduceDataSet( GetDataSetName() );
    RooAbsPdf*  bg_pdf      = data->GetPdfFromAlias("bg"+sig->Name());
    RooAbsPdf*  signal_pdf  = sig->GetPdfFromAlias("key");
 
@@ -154,7 +162,7 @@ void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* sig )
    fprintf( cardfile , "%12s %15s %15s\n" , "process" , "-1" , "1" );
    fprintf( cardfile , "%12s %15lf %15lf\n" , "rate",
       sig_strength.CentralValue() ,
-      data_obs->sumEntries()
+      bg_strength.CentralValue()
    );
 
    // Listing Nuisance parameters
@@ -174,7 +182,7 @@ void MakeCardFile( SampleRooFitMgr* data, SampleRooFitMgr* sig )
 //------------------------------------------------------------------------------
 //   Making validation plots
 //------------------------------------------------------------------------------
-void MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooFitResult* err )
+void smft::MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooFitResult* err )
 {
    TCanvas* c = new TCanvas("c","c", CANVAS_WIDTH, CANVAS_HEIGHT );
    RooPlot* frame = SampleRooFitMgr::x().frame();
@@ -183,14 +191,12 @@ void MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooFitResu
    RooAbsPdf*  bg_pdf  = data->GetPdfFromAlias("bg"+sig->Name() );
    RooAbsPdf*  sig_pdf = sig->GetPdfFromAlias("key");
    RooRealVar* bg_var  = (RooRealVar*)(model->coefList().at(0));
-   double bg_strength  = bg_var->getVal();
-   double bg_err       = bg_var->getError();
-   double sig_strength = sig->Sample().ExpectedYield();
-
-   // RooArgSet*  arg_set = bg_pdf->getVariables();
+   const double bg_strength  = bg_var->getVal();
+   const double bg_err       = bg_var->getError();
+   const double sig_strength = sig->Sample().ExpectedYield();
 
    TGraph* bg_err_plot = PlotOn( frame, bg_pdf,
-      RooFit::VisualizeError(*err, RooArgSet( *bg_var ), 2 ),
+      RooFit::VisualizeError(*err, 1 ),
       RooFit::Normalization(bg_strength,RooAbsReal::NumEvent)
    );
    TGraph* bg_plot = PlotOn( frame, bg_pdf,
@@ -200,11 +206,12 @@ void MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooFitResu
       RooFit::Normalization(sig_strength,RooAbsReal::NumEvent),
       RooFit::DrawOption("LB")
    );
-   TGraph* data_plot = PlotOn( frame, data->OriginalDataSet() );
+   TGraph* data_plot = PlotOn(frame, data->GetDataFromAlias( GetDataSetName() ) );
 
    frame->Draw();
    frame->SetMinimum(0.3);
    SetFrame(frame,FONT_SIZE); // see Utils/src/RooFitUtils.cc
+   frame->GetYaxis()->SetTitle( data_plot->GetYaxis()->GetTitle() );
 
    bg_err_plot->SetFillColor(kCyan);
    bg_plot->SetFillColor(kCyan);
@@ -216,10 +223,11 @@ void MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooFitResu
    TLegend* leg = new TLegend(0.6,0.7,0.9,0.9);
    char data_entry[1024];
    char sig_entry[1024];
-   sprintf( data_entry, "Data (%.3lf fb^{-1})" , SampleRooFitMgr::TotalLuminosity()/1000. );
-   sprintf( sig_entry,  "t^{*} {}_{M_{t^{*}}=%dGeV} (%.1lf pb)" , GetSignalMass(sig->Name()), sig->Sample().CrossSection().CentralValue() );
+   sprintf( data_entry, "Data (%.3lf fb^{-1})", SampleRooFitMgr::TotalLuminosity()/1000. );
+   sprintf( sig_entry,  "t^{*} {}_{M_{t^{*}}=%dGeV} (%.1lf pb)", GetSignalMass(sig->Name()), sig->Sample().CrossSection().CentralValue() );
    leg->AddEntry( data_plot, data_entry , "lp" );
    leg->AddEntry( bg_plot  , "Fitted Background" , "l" );
+   leg->AddEntry( bg_err_plot, "Fit Error(1#sigma)" , "f");
    leg->AddEntry( sig_plot , sig_entry , "lf" );
    leg->Draw();
    leg->SetTextSizePixels(FONT_SIZE);
@@ -236,16 +244,16 @@ void MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooFitResu
    tl->SetTextAlign(33);
    tl->DrawLatex(0.60,0.85 , GetFitFuncFormula().c_str() );
 
-   unsigned obs = data->OriginalDataSet()->sumEntries();
+   unsigned obs = data->GetDataFromAlias(GetDataSetName())->sumEntries();
    char obs_yield[1024];
    char exp_yield[1024];
    char delta[1024];
    sprintf( obs_yield, "Observed Yield: %d", obs );
    sprintf( exp_yield, "Expected Yield: %.2lf #pm %.2lf" , bg_strength, bg_err );
-   sprintf( delta    , "#Delta: %lf%%", 100.* (bg_strength-obs)/obs );
+   sprintf( delta    , "#Delta: %.3lf%%", 100.* (bg_strength-obs)/obs );
    tl->DrawLatex(0.85,0.65 , obs_yield );
-   tl->DrawLatex(0.85,0.57 , exp_yield );
-   tl->DrawLatex(0.85,0.49 , delta );
+   tl->DrawLatex(0.85,0.60 , exp_yield );
+   tl->DrawLatex(0.85,0.55 , delta );
 
 
    // Saving and cleaning up
@@ -260,16 +268,23 @@ void MakeValidationPlot( SampleRooFitMgr* data, SampleRooFitMgr* sig, RooFitResu
 //------------------------------------------------------------------------------
 //   Save everything to RooWorkspace
 //------------------------------------------------------------------------------
-void SaveRooWorkSpace( SampleRooFitMgr* data, vector<SampleRooFitMgr*> signal_list )
+void smft::SaveRooWorkSpace( SampleRooFitMgr* data, vector<SampleRooFitMgr*>& signal_list, vector<RooFitResult*>& results_list )
 {
    const string roofit_file = GetRooObjFile();
    cout << "Saving RooFit objects to " << roofit_file << endl;
    RooWorkspace ws( ws_name.c_str() , ws_name.c_str() );
-   ws.import( *(data->GetReduceDataSet("FitRange")) );
+   ws.import( *(data->GetReduceDataSet(GetDataSetName())) );
    for( auto& signal : signal_list ){
       ws.import( *(data->GetPdfFromAlias("bg"+signal->Name())) );
       ws.import( *(signal->GetPdfFromAlias("key")) );
-      ((RooGenericPdf*)data->GetPdfFromAlias("bg"+signal->Name()))->printMultiline(cout,0);
    }
    ws.writeToFile( roofit_file.c_str() );
+
+   TFile* fit_file = TFile::Open( GetFitResults().c_str() , "RECREATE" );
+   for( auto& result : results_list ){
+      cout << "Adding results " << result->GetName() << " " << result << endl;
+      result->Write( result->GetName() );
+   }
+   fit_file->Close();
+   delete fit_file;
 }

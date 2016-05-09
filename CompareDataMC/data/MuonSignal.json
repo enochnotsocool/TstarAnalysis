@@ -101,7 +101,7 @@
    -----------------------------------------------------------------------------""",
    "SingleT_S": {
       "Latex Name" : "Single$\\bar{t}$ ($s$ Channel)",
-      "Cross Section":        [ 3.36, 0.13, 0.12 ],
+      "Cross Section":  [ 3.36, 0.13, 0.12 ],
       "K Factor":        [1.0],
       "EDM Files":[
          "sample/MuonSignal/ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1.root"

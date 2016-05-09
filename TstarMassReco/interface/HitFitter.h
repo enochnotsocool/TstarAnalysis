@@ -34,9 +34,7 @@ public:
    void AddBTagJet( const double, const double, const double, const double);
    void AddLightJet( const double, const double, const double, const double);
 
-   const std::vector<hitfit::Fit_Result>& ResultList() const { return _resultList; }
-   const hitfit::Fit_Result&              BestResult() const;
-
+   hitfit::Fit_Result*  GetBest() { return _best_result; }
    void  RunPermutations();
    void  ClearAll();
 
@@ -47,7 +45,8 @@ private:
    bool   _leptontype;
    std::vector<TLorentzVector>  _btagJetList;
    std::vector<TLorentzVector>  _lightJetList;
-   std::vector<hitfit::Fit_Result>  _resultList;
+
+   hitfit::Fit_Result*  _best_result;
 
    hitfit::Top_Fit*                _top_fitter;
    hitfit::Resolution*             _met_KtResolution;    // Constant for the time being

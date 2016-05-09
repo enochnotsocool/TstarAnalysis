@@ -39,6 +39,11 @@ public:
       const RooCmdArg& = RooCmdArg() );
    RooDataSet* GetReduceDataSet( const std::string& );
 
+   // Generic Data Adding ( for generated datasets )
+   std::string MakeDataAlias( const std::string& x ) const ;
+   RooDataSet* GetDataFromAlias( const std::string& x ) ;
+   void AddDataSet( RooDataSet* );
+
    // Adding/Accessing pdfs
    std::string MakePdfAlias( const std::string& x ) const;
    void AddPdf( RooAbsPdf* );

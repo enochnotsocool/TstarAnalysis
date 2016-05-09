@@ -30,15 +30,17 @@ void InitDataAndSignal();
 void InitMC();
 
 // in src/RooFit_SimFit.cc
-extern void MakeSimFit(SampleRooFitMgr*, vector<SampleRooFitMgr*>);
+extern void MakeSimFit(SampleRooFitMgr*, vector<SampleRooFitMgr*>&);
 
 // in src/RooFit_SideBand.cc
 extern void MakeCheckPlot(SampleRooFitMgr*);
 extern void MakeSideBand(SampleRooFitMgr*,SampleRooFitMgr*);
 
-// in src/RooFit_MCTemlapte
-extern void MakeCheckPlot(SampleRooFitMgr*,SampleRooFitMgr*);
-extern void MakeTemplate(SampleRooFitMgr*,SampleRooFitMgr*,vector<SampleRooFitMgr*> );
+// in src/RooFit_MCTemplate.cc
+extern void MakeTemplate(SampleRooFitMgr*,SampleRooFitMgr*,vector<SampleRooFitMgr*>& );
+
+// in src/RooFit_Bias.cc
+extern void MakeBias(SampleRooFitMgr*,SampleRooFitMgr*,vector<SampleRooFitMgr*>&);
 
 //------------------------------------------------------------------------------
 //   Main control flow
@@ -61,7 +63,8 @@ int main(int argc, char* argv[]) {
       opt::notify(vm);
    } catch( boost::exception& e ){
       cerr << "Error parsing command!" << endl;
-      cerr << boost::diagnostic_information(e);
+      cerr << boost::diagnostic_information(e) << endl;
+      cerr << desc << endl;
       return 1;
    }
 
@@ -85,6 +88,8 @@ int main(int argc, char* argv[]) {
       cerr << "options [method] not found!" << endl;
       cerr << desc << endl;
       return 1;
+   } else {
+      SetMethod( vm["method"].as<string>() );
    }
 
    if( !vm.count("fitfunc") ) {
@@ -95,21 +100,22 @@ int main(int argc, char* argv[]) {
       SetFitFunc( vm["fitfunc"].as<string>() );
    }
 
-   if( vm["method"].as<string>() == "SimFit"  ){
+   if( GetMethod() == "SimFit"  ){
       cout  << "Running SimFit Method!" << endl;
-      SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
       MakeSimFit(data,signal_list);
-   } else if( vm["method"].as<string>() == "Template" ){
+   } else if( GetMethod() == "Template" ){
       cout << "Running MC template method!" << endl;
-      SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
       InitMC();
       MakeTemplate(data,mc,signal_list);
-      MakeCheckPlot(data,mc);
-   } else if( vm["method"].as<string>() == "SideBand"  ){
+   } else if( GetMethod().find("Bias") != string::npos ){
+      cout << "Running Bias check!" << endl;
+      InitDataAndSignal();
+      InitMC();
+      MakeBias(data,mc,signal_list);
+   } else if( GetMethod() == "SideBand"  ){
       cout << "Running side band method!" << endl;
-      SetMethod( vm["method"].as<string>() );
       InitDataAndSignal();
       MakeCheckPlot(data);
       for( auto& sample : signal_list ){

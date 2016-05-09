@@ -105,7 +105,7 @@ void MakeSideBand( SampleRooFitMgr* data_mgr, SampleRooFitMgr* signal )
 
    // Get Normalization
    double parm[2] = { m_val , b_val };
-   const double data_yield = data_mgr->GetReduceDataSet("FitRange")->numEntries();
+   const double data_yield = data_mgr->GetReduceDataSet( GetDataSetName() )->numEntries();
    const double norm_over_whole = GetIntegral( parm , minfitmass, maxmass );
    const double norm_over_selc  = GetIntegral( parm , minfitmass, lower ) + GetIntegral( parm, upper, maxmass );
    const double exp_yield = data_reduced->numEntries() * norm_over_whole / norm_over_selc ;

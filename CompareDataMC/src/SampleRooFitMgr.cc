@@ -111,12 +111,29 @@ RooDataSet* SampleRooFitMgr::MakeReduceDataSet(
 RooDataSet* SampleRooFitMgr::GetReduceDataSet( const string& name )
 {
    for( auto dataset : _ext_dataset ){
-      if( dataset->GetName() == Name() + name ){
+      if( dataset->GetName() == MakeDataAlias(name) ){
          return dataset;
       }
    }
-   return NULL;
+   return _dataset;
 }
+
+void SampleRooFitMgr::AddDataSet( RooDataSet* x )
+{
+   _ext_dataset.push_back( x );
+}
+
+RooDataSet* SampleRooFitMgr::GetDataFromAlias( const string& name )
+{
+   return GetReduceDataSet(name);
+}
+
+std::string SampleRooFitMgr::MakeDataAlias( const string& name ) const
+{
+   return Name() + name;
+}
+
+
 
 //------------------------------------------------------------------------------
 //   PDF Related functions

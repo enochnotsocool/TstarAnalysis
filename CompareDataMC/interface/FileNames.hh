@@ -29,11 +29,13 @@ extern std::string GetFitFuncTag();
 extern std::string GetFitFuncFormula();
 
 extern std::string GetCardFile( const std::string& );
+extern std::string GetFitResults();
+extern std::string GetFitCompare( const std::string& );
 extern std::string GetRooObjFile();
 extern std::string GetRooObjPlot( const std::string& );
 
 
-
+// Higgs combine output functions
 extern void SetHCMethod( const std::string& );
 extern std::string GetHCMethod();
 extern std::string HCRawOutputFile( int );
@@ -42,6 +44,8 @@ extern std::string LimitPlotFile();
 
 // Misc. Functions
 extern int GetSignalMass( const std::string& );
+extern void SetDataSetName( const std::string& );
+extern std::string GetDataSetName();
 
 
 #endif /* end of include guard: __FILENAME_HH__ */
