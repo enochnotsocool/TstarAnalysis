@@ -51,7 +51,6 @@ HitFitter::HitFitter( const edm::ParameterSet& iConfig ):
    _lightJetResolution = new EtaDepResolution( ljetResolutionFile.fullPath() );
    _bJetResolution     = new EtaDepResolution( bjetResolutionFile.fullPath() );
    _met_KtResolution   = new Resolution("0,0,12");
-
 }
 
 HitFitter::~HitFitter()
@@ -165,7 +164,7 @@ void HitFitter::RunPermutations()
             pully
       );
 
-      if( chiSquare < min_ChiSquare ){
+      if( chiSquare < min_ChiSquare && chiSquare > 0. ){
          min_ChiSquare = chiSquare;
          if( _best_result ) { delete _best_result; }
          _best_result = new Fit_Result(

@@ -1,9 +1,7 @@
 <lcgdict>
    <selection>
-      <class name="ChiSquareResult"/>
-      <class name="HitFitResult"/>
-      <class name="edm::Wrapper<ChiSquareResult>"/>
-      <class name="edm::Wrapper<HitFitResult>"/>
+      <class name="RecoResult"/>
+      <class name="edm::Wrapper<RecoResult>"/>
    </selection>
    <exclusion>
    </exclusion>

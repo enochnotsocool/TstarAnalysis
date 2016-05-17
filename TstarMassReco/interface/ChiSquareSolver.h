@@ -14,7 +14,7 @@
 #define __CHISQUARESOLVER_H__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TstarAnalysis/TstarMassReco/interface/ChiSquareResult.h"
+#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
 #include "TLorentzVector.h"
 #include <vector>
 
@@ -32,11 +32,11 @@ public:
    void RunPermutations();
    void ClearAll();
 
-   const std::vector<ChiSquareResult>& ResultList() const { return _resultsList; }
-   const ChiSquareResult& BestResult() const ;
+   const std::vector<RecoResult>& ResultList() const { return _resultsList; }
+   const RecoResult& BestResult() const ;
 
 private:
-   std::vector<ChiSquareResult>  _resultsList;
+   std::vector<RecoResult>       _resultsList;
    std::vector<TLorentzVector>   _jetVecList;
    TLorentzVector  _lepton;
    TLorentzVector  _neutrino[2]; // Two possible solution for neutrino
@@ -45,6 +45,8 @@ private:
    double          _met;
    double          _metphi;
    const unsigned  _debug;
+   const unsigned  _max_jets;
+   const unsigned  _req_b_jets;
 
    void solveNeutrino();
    void makeJetVecList();

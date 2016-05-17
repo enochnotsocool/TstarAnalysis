@@ -17,15 +17,17 @@ using namespace std;
 #define W_MASS      80.385
 #define W_WIDTH     2.085
 #define TSTAR_WIDTH 10
-#define REQUIRED_BJETS_MATCHING 1
-#define MAX_JETS_TO_RUN 6
+#define DEFAULT_REQUIRED_BJETS_MATCHING 1
+#define DEFAULT_MAX_JETS_TO_RUN 6
 static const ComparePT<TLorentzVector> comp;
 
 //------------------------------------------------------------------------------
 //   Constructor and destructor
 //------------------------------------------------------------------------------
 ChiSquareSolver::ChiSquareSolver(const edm::ParameterSet& iConfig):
-   _debug( iConfig.getUntrackedParameter<int>( "Debug" , 0 ) )
+   _debug( iConfig.getUntrackedParameter<int>( "Debug" , 0 ) ),
+   _max_jets( iConfig.getUntrackedParameter<int>("MaxJet" , DEFAULT_MAX_JETS_TO_RUN )),
+   _req_b_jets( iConfig.getUntrackedParameter<int>("ReqBJet", DEFAULT_REQUIRED_BJETS_MATCHING ))
 {}
 
 ChiSquareSolver::~ChiSquareSolver(){}
@@ -70,25 +72,18 @@ void ChiSquareSolver::RunPermutations()
             +(( lep_tstar.Mag() - had_tstar.Mag() ) * ( lep_tstar.Mag() - had_tstar.Mag() )) / ( TSTAR_WIDTH * TSTAR_WIDTH ) ;
 
             tstarMass = (lep_tstar.Mag() + had_tstar.Mag()) / 2.;
-            _resultsList.push_back( ChiSquareResult(
-               tstarMass,
-               chiSquare,
-               _lepton ,
-               _neutrino[i],
-               lep_w,
-               lep_t,
-               lep_tstar,
-               had_w,
-               had_t,
-               had_tstar
-            ) );
+            _resultsList.push_back( RecoResult(
+               tstarMass, chiSquare,
+               _lepton, _neutrino[i], lep_b(), lep_g(),
+               had_q1(),  had_q2(),       had_b(), had_g() )
+            );
             if( _debug > 2 ) { cout << "\t " << tstarMass << " "<< chiSquare << endl; }
          }
       } while( next_permutation( _bjetList.begin() , _bjetList.end(), comp ) );
    } while( next_permutation( _ljetList.begin() , _ljetList.end(), comp ) );
 }
 
-const ChiSquareResult& ChiSquareSolver::BestResult() const
+const RecoResult& ChiSquareSolver::BestResult() const
 {
    if( _debug ) { cout << "Getting Best Results..." << endl; }
    unsigned index = -1;
@@ -126,7 +121,7 @@ void ChiSquareSolver::AddBTagJet( const double pt, const double eta, const doubl
 {
    TLorentzVector jet;
    jet.SetPtEtaPhiE( pt, eta, phi, energy );
-   if( _bjetList.size() < REQUIRED_BJETS_MATCHING ){
+   if( _bjetList.size() < _req_b_jets ){
       _bjetList.push_back( jet );
    } else {
       _ljetList.push_back( jet );
@@ -134,7 +129,7 @@ void ChiSquareSolver::AddBTagJet( const double pt, const double eta, const doubl
 }
 void ChiSquareSolver::AddLightJet( const double pt, const double eta, const double phi, const double energy )
 {
-   const unsigned target_lightjet_size = MAX_JETS_TO_RUN - _bjetList.size();
+   const unsigned target_lightjet_size = _max_jets - _bjetList.size();
    TLorentzVector jet;
    jet.SetPtEtaPhiE( pt, eta, phi, energy );
    _ljetList.push_back( jet );

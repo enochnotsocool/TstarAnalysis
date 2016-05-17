@@ -140,8 +140,9 @@ void SampleHistMgr::AddHist(
 {
    char y_title[1024];
    sprintf( y_title , "Yield [1/%.2lf %s]" ,
-   (x_upper - x_lower)/binCount,
-   x_unit.c_str() );
+      (x_upper - x_lower)/binCount,
+      x_unit.c_str()
+   );
 
    string x_title = x_label;
    if( x_unit != "" ){
