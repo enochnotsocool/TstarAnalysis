@@ -9,67 +9,49 @@
 #define __RECORESULTS_H__
 
 #include "TLorentzVector.h"
-#include "TopQuarkAnalysis/TopHitFit/interface/Fit_Result.h"
+#include "TstarAnalysis/TstarMassReco/interface/FitParticle.hh"
+
+#include <vector>
+
+// Forward declaring ChiSquareSolver class
+class ChiSquareSolver;
 
 class RecoResult {
 public:
    RecoResult();
    virtual ~RecoResult ();
 
-   RecoResult& operator=( const RecoResult& );
+   // Granting friend access to Solver classes
+   friend class ChiSquareSolver;
+   friend class HitFitter;
 
+   RecoResult& operator=( const RecoResult& );
    double TstarMass() const;
    double ChiSquare() const;
-   TLorentzVector Lepton()        const;
-   TLorentzVector Neutrino()      const;
-   TLorentzVector LeptonicW()     const;
-   TLorentzVector LeptonicBJet()  const;
-   TLorentzVector LeptonicTop()   const;
-   TLorentzVector LeptonicGluon() const;
-   TLorentzVector LeptonicTstar() const;
-   TLorentzVector HadronicJet1()  const;
-   TLorentzVector HadronicJet2()  const;
-   TLorentzVector HadronicW()     const;
-   TLorentzVector HadronicBJet()  const;
-   TLorentzVector HadronicTop()   const;
-   TLorentzVector HadronicGluon() const;
-   TLorentzVector HadronicTstar() const;
 
-   // Tranlator functions
-   RecoResult( // For Chi Square sorting Method
-      const double TstarMass,
-      const double ChiSquare,
-      const TLorentzVector& Lepton,
-      const TLorentzVector& Neutrino,
-      const TLorentzVector& LeptonicBJet,
-      const TLorentzVector& LeptonicGluon,
-      const TLorentzVector& HadronicJet1,
-      const TLorentzVector& HadronicJet2,
-      const TLorentzVector& HadronicBJet,
-      const TLorentzVector& HadronicGluon
-   );
+   void  AddParticle( const FitParticle& );
+   const FitParticle& GetParticle( const Particle_Label& ) const;
 
-   // For HitFit Method
-   void MakeFromHitFit( const hitfit::Fit_Result& );
-   static TLorentzVector ToRootFormat( const hitfit::Fourvec& );
+   const FitParticle& Lepton()        const;
+   const FitParticle& Neutrino()      const;
+   const TLorentzVector LeptonicW()   const;
+   const FitParticle& LeptonicBJet()  const;
+   const TLorentzVector LeptonicTop() const;
+   const FitParticle& LeptonicGluon() const;
+   const TLorentzVector LeptonicTstar() const;
+
+   const FitParticle& HadronicJet1()  const;
+   const FitParticle& HadronicJet2()  const;
+   const TLorentzVector HadronicW() const ;
+   const FitParticle& HadronicBJet()  const;
+   const TLorentzVector HadronicTop() const;
+   const FitParticle& HadronicGluon() const;
+   const TLorentzVector HadronicTstar() const ;
 
 private:
    double _tstarMass;
    double _chiSquare;
-   TLorentzVector _lepton       ;
-   TLorentzVector _neutrino     ;
-   TLorentzVector _leptonicW    ;
-   TLorentzVector _leptonicBJet ;
-   TLorentzVector _leptonicTop  ;
-   TLorentzVector _leptonicGluon;
-   TLorentzVector _leptonicTstar;
-   TLorentzVector _hadronicJet1 ;
-   TLorentzVector _hadronicJet2 ;
-   TLorentzVector _hadronicW    ;
-   TLorentzVector _hadronicBJet ;
-   TLorentzVector _hadronicTop  ;
-   TLorentzVector _hadronicGluon;
-   TLorentzVector _hadronicTstar;
+   std::vector<FitParticle> _fitted_particle_list;
 };
 
 #endif /* end of include guard: __RECORESULTS_H__ */

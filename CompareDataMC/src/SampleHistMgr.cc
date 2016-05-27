@@ -12,7 +12,8 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
-#include "TstarAnalysis/TstarMassReco/interface/ChiSquareResult.h"
+
+#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
 
 #include <iostream>
 #include <stdlib.h>
@@ -34,12 +35,13 @@ SampleHistMgr::SampleHistMgr( const string& name ):
    AddHist( "JetNum"    , "Number of Jets"            , ""        , 5  , 5    , 12   );
    AddHist( "MET"       , "Missing E_{T}"             , "GeV"     , 50 , 0    , 500. );
    AddHist( "METPhi"    , "Missing E_{T} #phi"        , ""        , 96 , -3.2 , 6.4  );
-   AddHist( "TstarMass" , "M_{t+g}"                   , "GeV/c^2" , 50 , 0    , 2000 );
-   AddHist( "ChiSq"     , "#chi^{2}"                  , ""        , 50 , 0    , 10000 );
    AddHist( "Jet3Pt"    , "Third Jet P_{T}"           , "GeV/c"   , 60 , 30   , 700.  );
    AddHist( "Jet4Pt"    , "Fourth Jet P_{T}"          , "GeV/c"   , 60 , 30   , 600. );
    AddHist( "Jet5Pt"    , "Fifth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
    AddHist( "Jet6Pt"    , "Sixth Jet P_{T}"           , "GeV/c"   , 60 , 30   , 400. );
+
+   AddHist( "TstarMass" , "M_{t+g}"                   , "GeV/c^2" , 50 , 0    , 2000 );
+   AddHist( "ChiSq"     , "#chi^{2}"                  , ""        , 50 , 0    , 10000 );
    AddHist( "LepGluonPt", "Leptonic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
    AddHist( "HadGluonPt", "Hadronic Gluon Jet P_{T}"  , "GeV/c"   , 60 , 30   , 1000. );
 
@@ -57,7 +59,7 @@ void SampleHistMgr::FillHistograms( SampleMgr& sample )
    fwlite::Handle<vector<pat::Muon>>     muonHandle;
    fwlite::Handle<vector<pat::Electron>> electronHandle;
    fwlite::Handle<LHEEventProduct>       lheHandle;
-   fwlite::Handle<ChiSquareResult>       chisqHandle;
+   fwlite::Handle<RecoResult>       chisqHandle;
 
    double sample_weight = 1.;
    if( !sample.IsRealData() ) {
@@ -113,8 +115,8 @@ void SampleHistMgr::FillHistograms( SampleMgr& sample )
 
       GetHist("TstarMass")->Fill( chisqHandle->TstarMass() , total_weight );
       GetHist("ChiSq")->Fill( chisqHandle->ChiSquare()     , total_weight );
-      GetHist("LepGluonPt")->Fill( (chisqHandle->LeptonicTstar() - chisqHandle->LeptonicTop()).Pt() , total_weight  );
-      GetHist("HadGluonPt")->Fill( (chisqHandle->HadronicTstar() - chisqHandle->HadronicTop()).Pt() , total_weight  );
+      GetHist("LepGluonPt")->Fill( chisqHandle->LeptonicGluon().ObservedP4().Pt() , total_weight  );
+      GetHist("HadGluonPt")->Fill( chisqHandle->HadronicGluon().ObservedP4().Pt() , total_weight  );
    }
    cout << "Done!" << endl;
 

@@ -1,11 +1,13 @@
 <use name="root"/>
+<use name="roofit"/>
 <use name="DataFormats/FWLite"/>
 <use name="DataFormats/PatCandidates"/>
 
-<use name="bpkFrameWork/ModifiedHitFit"/>
-<use name="TopQuarkAnalysis/TopHitFit"/>
+<use name="TstarAnalysis/ModifiedHitFit"/>
 
 <flags LCG_DICT_HEADER="classes.h"/>
 <flags LCG_DICT_XML="classes_def.xml"/>
+
+<flags CXXFLAGS="-g"/>
 
 <export><lib   name="1"/></export>

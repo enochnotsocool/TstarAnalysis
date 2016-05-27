@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
-#include "TstarAnalysis/TstarMassReco/interface/HitFitter.h"
+#include "TstarAnalysis/TstarMassReco/interface/HitFitter.hh"
 
 typedef std::vector<pat::MET>      METList;
 typedef std::vector<pat::Muon>     MuonList;
@@ -84,25 +84,22 @@ void HitFitMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
 
    //----- HitFitter -----
    _hitfitter.ClearAll();
-   _hitfitter.SetMET( metList.front().pt() , metList.front().phi() );
+   _hitfitter.SetMET( &metList.front() );
    for( const auto& mu : muList ){
-      _hitfitter.SetLepton( mu.pt(), mu.eta(), mu.phi(), mu.energy() , ISMUON );
+      _hitfitter.SetMuon( &mu );
    }
    for( const auto& el : elecList ){
-      _hitfitter.SetLepton( el.pt(), el.eta(), el.phi(), el.energy() , ISELECTRON );
+      _hitfitter.SetElectron( &el );
    }
-   for( const auto& jet : jetList ){
-    if( jet.eta() > 2.4 ){
-       std::cout << "Wierd Jet Found!" << std::endl;
-    }
-    if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
-       _hitfitter.AddBTagJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
-    }else{
-       _hitfitter.AddLightJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
-    }
+   for( const auto& jet : jetList ) {
+      if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
+        _hitfitter.AddBTagJet( &jet );
+      } else {
+       _hitfitter.AddLightJet( &jet );
+      }
    }
    _hitfitter.RunPermutations();
-   _hitfit->MakeFromHitFit( *(_hitfitter.GetBest()) );
+   *_hitfit = _hitfitter.BestResult();
 
    iEvent.put( _hitfit, "HitFitResult");
 }

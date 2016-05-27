@@ -14,23 +14,38 @@ using fwlite::Handle;
 //------------------------------------------------------------------------------
 //   Constructor and destructor
 //------------------------------------------------------------------------------
-CompareHistMgr::CompareHistMgr(const string& name,const string& model, const string& product, const string& process):
+CompareHistMgr::CompareHistMgr(
+   const string& name,
+   const string& latex_name,
+   const string& model,
+   const string& product,
+   const string& process
+):
    _name(name),
+   _latex_name(latex_name),
    _module_label(model),
    _product_label(product),
    _process_label(process)
 {
-   AddHist( "TstarMass" , "t^{*} Mass" , "GeV/c^{2}", 60, 0, 3000);
-   AddHist( "LepTopMass", "Leptonic Top Mass"               , "GeV/c^{2}" , 35 , 0, 350 );
-   AddHist( "LepTopPt"  , "Leptonic Top Tranverse Momentum" , "GeV/c"     , 35 , 0, 350 );
-   AddHist( "LepTopEta" , "Leptonic Top #eta"               , ""          , 48 , -2.4,  2.4);
-   AddHist( "HadTopMass", "Hadronic Top Mass"               , "GeV/c^{2}" , 35 , 0, 350 );
-   AddHist( "HadTopPt"  , "Hadronic Top Tranverse Momentum" , "GeV/c"     , 35 , 0, 350 );
-   AddHist( "HadTopEta" , "Hadronic Top #eta"               , ""          , 48 , -2.4,  2.4);
-   AddHist( "HadWMass"  , "Hadronic W Boson Mass"               , "GeV/c^{2}" , 20 , 0, 200 );
-   AddHist( "HadWPt"    , "Hadronic W Boson Tranverse Momentum" , "GeV/c"     , 35 , 0, 350 );
-   AddHist( "HadWEta"   , "Hadronic W Boson #eta"               , ""          , 48 , -2.4,  2.4);
-   AddHist( "NeuPz"     , "Neutrino P_{z}" , "GeV/c" , 20, 0, 1000 );
+   AddHist( "TstarMass" , "t^{*} Mass"            , "GeV/c^{2}", 120, 0, 3000 );
+   AddHist( "ChiSq"     , "#chi^{2} of Method"    , ""         , 120, 0, 3000 );
+   AddHist( "LepTopMass", "Leptonic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
+   AddHist( "HadTopMass", "Hadronic Top Mass"     , "GeV/c^{2}", 100, 0, 500  );
+   AddHist( "HadWMass"  , "Hadronic W Boson Mass" , "GeV/c^{2}", 40,  0, 200  );
+   AddHist( "LepPtDiff"  , "Difference in Lepton p_{T}",         "GeV/c", 80,  -200, 200 );
+   AddHist( "LepBPtDiff" , "Difference in Leptonic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "LepGPtDiff" , "Difference in Leptonic gluon p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "HadBPtDiff" , "Difference in Hadronic b-tag p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "HadGPtDiff" , "Difference in Hadronic gluon p_{T}", "GeV/c", 80,  -200, 200 );
+   AddHist( "NeuPz"     , "Neutrino P_{z}"        , "GeV/c",     40,  0, 400 );
+   _event_count  = 0 ;
+   _lep_match    = 0 ;
+   _lep_b_match  = 0 ;
+   _lep_g_match  = 0 ;
+   _had_j1_match = 0 ;
+   _had_j2_match = 0 ;
+   _had_b_match  = 0 ;
+   _had_g_match  = 0 ;
 }
 
 CompareHistMgr::~CompareHistMgr()
@@ -48,16 +63,26 @@ void CompareHistMgr::AddEvent( const fwlite::Event& ev )
    _result_handle.getByLabel( ev, _module_label.c_str(), _product_label.c_str(), _process_label.c_str() );
    const RecoResult& result = *(_result_handle);
    Hist( "TstarMass"  )->Fill( result.TstarMass() );
+   Hist( "ChiSq" )->Fill( result.ChiSquare() );
    Hist( "LepTopMass" )->Fill( result.LeptonicTop().M()   );
-   Hist( "LepTopPt"   )->Fill( result.LeptonicTop().Pt()  );
-   Hist( "LepTopEta"  )->Fill( result.LeptonicTop().Eta() );
    Hist( "HadTopMass" )->Fill( result.HadronicTop().M()   );
-   Hist( "HadTopPt"   )->Fill( result.HadronicTop().Pt()  );
-   Hist( "HadTopEta"  )->Fill( result.HadronicTop().Eta() );
    Hist( "HadWMass"   )->Fill( result.HadronicW().M()   );
-   Hist( "HadWPt"     )->Fill( result.HadronicW().Pt()  );
-   Hist( "HadWEta"    )->Fill( result.HadronicW().Eta() );
-   Hist( "NeuPz"      )->Fill( result.Neutrino().Pz()   );
+   Hist( "LepPtDiff"  )->Fill( result.Lepton().FittedP4().Pt()        - result.Lepton().ObservedP4().Pt() );
+   Hist( "LepBPtDiff" )->Fill( result.LeptonicBJet().FittedP4().Pt()  - result.LeptonicBJet().ObservedP4().Pt() );
+   Hist( "LepGPtDiff" )->Fill( result.LeptonicGluon().FittedP4().Pt() - result.LeptonicGluon().ObservedP4().Pt() );
+   Hist( "HadBPtDiff" )->Fill( result.HadronicBJet().FittedP4().Pt()  - result.HadronicBJet().ObservedP4().Pt() );
+   Hist( "HadGPtDiff" )->Fill( result.HadronicGluon().FittedP4().Pt() - result.HadronicGluon().ObservedP4().Pt() );
+   Hist( "NeuPz"      )->Fill( result.Neutrino().FittedP4().Pz()   );
+
+   // Match counting
+   ++_event_count;
+   if( result.Lepton().FitMatchTruth() )      { ++_lep_match; }
+   if( result.LeptonicBJet().FitMatchTruth() ){ ++_lep_b_match; }
+   if( result.LeptonicGluon().FitMatchTruth() ){ ++_lep_g_match; }
+   if( result.HadronicJet1().FitMatchTruth() ) { ++_had_j1_match; }
+   if( result.HadronicJet2().FitMatchTruth() ) { ++_had_j2_match; }
+   if( result.HadronicBJet().FitMatchTruth() ) { ++_had_b_match; }
+   if( result.HadronicGluon().FitMatchTruth() ) { ++_had_g_match; }
 }
 
 //------------------------------------------------------------------------------
@@ -90,6 +115,18 @@ void CompareHistMgr::SetColor( const Color_t x )
       hist->SetLineColor( x );
    }
 }
+
+//------------------------------------------------------------------------------
+//   Match rate computations
+//------------------------------------------------------------------------------
+unsigned CompareHistMgr::EventCount() const { return _event_count; }
+double CompareHistMgr::LepMatchRate() const  { return (double)_lep_match/double(_event_count); }
+double CompareHistMgr::LepBMatchRate() const { return (double)_lep_b_match/double(_event_count); }
+double CompareHistMgr::LepGMatchRate() const { return (double)_lep_g_match/double(_event_count); }
+double CompareHistMgr::HadJ1MatchRate() const{ return (double)_had_j1_match/double(_event_count); }
+double CompareHistMgr::HadJ2MatchRate() const{ return (double)_had_j2_match/double(_event_count); }
+double CompareHistMgr::HadBMatchRate() const { return (double)_had_b_match/double(_event_count); }
+double CompareHistMgr::HadGMatchRate() const { return (double)_had_g_match/double(_event_count); }
 
 
 //------------------------------------------------------------------------------

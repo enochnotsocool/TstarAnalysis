@@ -7,7 +7,7 @@
 *******************************************************************************/
 #include "TstarAnalysis/CompareDataMC/interface/SampleRooFitMgr.hh"
 #include "TstarAnalysis/Utils/interface/SampleMgr.hh"
-#include "TstarAnalysis/TstarMassReco/interface/ChiSquareResult.h"
+#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 
@@ -57,7 +57,7 @@ SampleRooFitMgr::~SampleRooFitMgr()
 void SampleRooFitMgr::FillDataSet( SampleMgr& sample )
 {
    fwlite::Handle<LHEEventProduct>  lheHandle;
-   fwlite::Handle<ChiSquareResult>  chiHandle;
+   fwlite::Handle<RecoResult>  chiHandle;
    double sample_weight =  1. ;
 
    if( !sample.IsRealData() ){

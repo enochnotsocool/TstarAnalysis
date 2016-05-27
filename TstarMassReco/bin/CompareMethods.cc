@@ -18,56 +18,56 @@
 #include <vector>
 
 using namespace std;
-// TimeReport   9.416040     9.416040     9.416040  AddTopConstrain
-// TimeReport   0.023562     0.023562     0.023562  ChiSq6jet0b
-// TimeReport   0.001745     0.001745     0.001745  ChiSq6jet1b
-// TimeReport   0.050019     0.050019     0.050019  ChiSq8jet1b
-// TimeReport   6.300856     6.300856     6.300856  NoTopConstrain
+
+extern void ComparePlot( const string& plot_name, const vector<CompareHistMgr*> );    // See src/ComparePlot.cc
+extern void MatchRatePlot( const string& plot_name, const vector<CompareHistMgr*> );  // See src/ComparePlot.cc
 
 int main( int argc, char* argv[] ){
 
    fwlite::Event event( TFile::Open("test/edm_MassReco.root") );
-   CompareHistMgr* ChiSq6jet0b  = new CompareHistMgr( "ChiSq6jet0b",  "ChiSq6jet0b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* ChiSq6jet1b  = new CompareHistMgr( "ChiSq6jet1b",  "ChiSq6jet1b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* ChiSq8jet1b  = new CompareHistMgr( "ChiSq8jet1b",  "ChiSq8jet1b", "ChiSquareResult", "HitFitCompare")  ;
-   CompareHistMgr* HitFitTopCon = new CompareHistMgr( "HitFitTopCon", "AddTopConstrain",  "HitFitResult", "HitFitCompare");
-   CompareHistMgr* HitFitNoTop  = new CompareHistMgr( "HitFitNoTop",  "NoTopConstrain",   "HitFitResult", "HitFitCompare");
+   CompareHistMgr* ChiSq6jet0b  = new CompareHistMgr( "ChiSq6jet0b", "#chi^{2} (6 jet + 0 b-jets)", "ChiSq6jet0b", "ChiSquareResult", "HitFitCompare")  ;
+   CompareHistMgr* ChiSq6jet1b  = new CompareHistMgr( "ChiSq6jet1b", "#chi^{2} (6 jet + 1 b-jets)", "ChiSq6jet1b", "ChiSquareResult", "HitFitCompare")  ;
+   CompareHistMgr* ChiSq6jet2b  = new CompareHistMgr( "ChiSq6jet2b", "#chi^{2} (6 jet + 2 b-jets)", "ChiSq6jet2b", "ChiSquareResult", "HitFitCompare")  ;
+   CompareHistMgr* ChiSq8jet0b  = new CompareHistMgr( "ChiSq8jet0b", "#chi^{2} (8 jet + 0 b-jets)", "ChiSq8jet0b", "ChiSquareResult", "HitFitCompare")  ;
+   CompareHistMgr* ChiSq8jet1b  = new CompareHistMgr( "ChiSq8jet1b", "#chi^{2} (8 jet + 1 b-jets)", "ChiSq8jet1b", "ChiSquareResult", "HitFitCompare")  ;
+   CompareHistMgr* ChiSq8jet2b  = new CompareHistMgr( "ChiSq8jet2b", "#chi^{2} (8 jet + 2 b-jets)", "ChiSq8jet2b", "ChiSquareResult", "HitFitCompare")  ;
+   CompareHistMgr* HitFit6jet1b  = new CompareHistMgr( "HitFit6jet1b", "HitFit(6 jet + 1 b-jets, Not Top constrain)", "NoTopConstrain6j1b", "HitFitResult", "HitFitCompare")  ;
+   CompareHistMgr* HitFit8jet1b  = new CompareHistMgr( "HitFit8jet1b", "HitFit(8 jet + 1 b-jets, Not Top constrain)", "NoTopConstrain8j1b", "HitFitResult", "HitFitCompare")  ;
+
 
    unsigned i = 0 ;
    for( event.toBegin() ; !event.atEnd() ; ++event ){
       cout << "\rAt Event [" << ++i << "]" << flush;
-      ChiSq6jet0b-> AddEvent(event);
-      ChiSq6jet1b-> AddEvent(event);
-      ChiSq8jet1b-> AddEvent(event);
-      HitFitTopCon->AddEvent(event);
-      HitFitNoTop-> AddEvent(event);
+      ChiSq6jet0b->AddEvent(event);
+      ChiSq6jet1b->AddEvent(event);
+      ChiSq6jet2b->AddEvent(event);
+      ChiSq8jet0b->AddEvent(event);
+      ChiSq8jet1b->AddEvent(event);
+      ChiSq8jet2b->AddEvent(event);
+      HitFit6jet1b->AddEvent(event);
+      HitFit8jet1b->AddEvent(event);
    }
    cout << endl;
+   ComparePlot( "6j-bjets_effect" , {ChiSq6jet0b,ChiSq6jet1b,ChiSq6jet2b} );
+   ComparePlot( "6j-v-8j_0bjet",  {ChiSq6jet0b,ChiSq8jet0b} );
+   ComparePlot( "6j-v-8j_2bjet",  {ChiSq6jet2b,ChiSq8jet2b} );
+   ComparePlot( "chisq-v-hitfit" , {ChiSq6jet1b,HitFit6jet1b,HitFit8jet1b} );
+   MatchRatePlot( "chisq", {
+      ChiSq6jet0b,
+      ChiSq6jet1b,
+      ChiSq6jet2b,
+      ChiSq8jet0b,
+      ChiSq8jet1b,
+      ChiSq6jet2b }
+   );
+   MatchRatePlot( "chisq-v-hitfit-match", {
+      ChiSq6jet1b,
+      ChiSq8jet1b,
+      HitFit6jet1b,
+      HitFit8jet1b
+      }
+   ) ;
 
-   ChiSq6jet0b->SetColor(kBlue);
-   ChiSq6jet1b->SetColor(kRed);
-   ChiSq8jet1b->SetColor(kGreen);
-   HitFitTopCon->SetColor(kBlack);
-   HitFitNoTop->SetColor(kCyan);
-
-
-   for( const auto& hist_name : ChiSq6jet0b->AvailableHistList() ){
-      TCanvas* c = new TCanvas("c","c",650,500);
-      TLegend* tl = new TLegend(0.6,0.5,0.9,0.9);
-      ChiSq6jet0b-> Hist(hist_name)->Draw("HIST SAME");
-      ChiSq6jet1b-> Hist(hist_name)->Draw("HIST SAME");
-      ChiSq8jet1b-> Hist(hist_name)->Draw("HIST SAME");
-      HitFitTopCon->Hist(hist_name)->Draw("HIST SAME");
-      HitFitNoTop-> Hist(hist_name)->Draw("HIST SAME");
-      tl->AddEntry( ChiSq6jet0b->Hist(hist_name) , "#chi^{2} (6 jets, no b-tag)" , "l");
-      tl->AddEntry( ChiSq6jet1b->Hist(hist_name) , "#chi^{2} (6 jets, 1 b-tag)" , "l");
-      tl->AddEntry( ChiSq8jet1b->Hist(hist_name) , "#chi^{2} (8 jets, 1 b-tag)" , "l");
-      tl->AddEntry( HitFitNoTop->Hist(hist_name) , "HitFit (No Top Contrain)" , "l");
-      tl->AddEntry( HitFitTopCon->Hist(hist_name) , "HitFit (Top Constrained)" , "l");
-      tl->Draw();
-      c->SaveAs( (hist_name+".png").c_str() );
-      delete c;
-   }
 
    return 0;
 }

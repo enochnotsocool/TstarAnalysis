@@ -10,12 +10,18 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "bpkFrameWork/ModifiedHitFit/interface/Lepjets_Event.h"
-#include "bpkFrameWork/ModifiedHitFit/interface/Top_Fit.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
+#include "TstarAnalysis/ModifiedHitFit/interface/Lepjets_Event.h"
+#include "TstarAnalysis/ModifiedHitFit/interface/Top_Fit.h"
 
 #include "TopQuarkAnalysis/TopHitFit/interface/EtaDepResolution.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/Top_Decaykin.h"
-#include "TopQuarkAnalysis/TopHitFit/interface/Fit_Result.h"
+
+#include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
 
 #include "TLorentzVector.h"
 #include <vector>
@@ -29,24 +35,29 @@ public:
    HitFitter( const edm::ParameterSet& );
    virtual ~HitFitter ();
 
-   void SetMET( const double, const double );
-   void SetLepton( const double, const double, const double, const double, const bool isMuon);
-   void AddBTagJet( const double, const double, const double, const double);
-   void AddLightJet( const double, const double, const double, const double);
+   void SetMET( const pat::MET* );
+   void SetMuon( const pat::Muon* );
+   void SetElectron( const pat::Electron* );
+   void AddBTagJet(  const pat::Jet* );
+   void AddLightJet( const pat::Jet* );
 
-   hitfit::Fit_Result*  GetBest() { return _best_result; }
    void  RunPermutations();
    void  ClearAll();
 
-private:
-   double _met;
-   double _metPhi;
-   TLorentzVector  _lepton;
-   bool   _leptontype;
-   std::vector<TLorentzVector>  _btagJetList;
-   std::vector<TLorentzVector>  _lightJetList;
+   const RecoResult& BestResult() const;
 
-   hitfit::Fit_Result*  _best_result;
+private:
+
+   // Storing objects
+   const unsigned _max_jets;
+   const unsigned _max_required_b_jet;
+   const pat::MET*      _met;
+   const pat::Muon*     _muon;
+   const pat::Electron* _elec;
+   std::vector<const pat::Jet*>  _btagJetList;
+   std::vector<const pat::Jet*>  _lightJetList;
+
+   std::vector<RecoResult> _results_list;
 
    hitfit::Top_Fit*                _top_fitter;
    hitfit::Resolution*             _met_KtResolution;    // Constant for the time being
@@ -58,9 +69,12 @@ private:
    unsigned _debug;
 
    //----- Translator functions  --------------------------------------------------
-   void AddHitFitMET( hitfit::Lepjets_Event&, const double, const double ) const;
-   void AddHitFitLepton( hitfit::Lepjets_Event&, const TLorentzVector&, const bool) const;
-   void AddHitFitJet( hitfit::Lepjets_Event&, const TLorentzVector& , const int) const;
+   void SetHitFitTemplate( hitfit::Lepjets_Event& ) const;
+   void AddHitFitJet( hitfit::Lepjets_Event&, const pat::Jet* , const int) const;
+   void AddResult(
+      const double,
+      const double,
+      const hitfit::Lepjets_Event&); // Converting results to RecoResult
 
    //----- B Tag checking functions  ----------------------------------------------
    bool CheckBTagOrder( const std::vector<int>& ) const;

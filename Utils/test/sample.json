@@ -38,7 +38,8 @@
       "Cross Section": [ 1.0 , 1.0 , 1.0 ],
       "K Factor": [1.2],
       "EDM Files" :[
-         "edmOut.root"
+         "edmOut.root",
+         "edmOut_2.root"
       ]
    }
 }

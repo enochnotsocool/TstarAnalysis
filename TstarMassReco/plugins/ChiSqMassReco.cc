@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include "TstarAnalysis/TstarMassReco/interface/RecoResult.hh"
-#include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.h"
+#include "TstarAnalysis/TstarMassReco/interface/ChiSquareSolver.hh"
 
 typedef std::vector<pat::MET> METList;
 typedef std::vector<pat::Muon>  MuonList;
@@ -75,7 +75,7 @@ void ChiSqMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
    iEvent.getByToken( _muonsrc , _muonHandle );
    iEvent.getByToken( _elecsrc , _elecHandle );
    iEvent.getByToken( _jetsrc  , _jetHandle  );
-   std::auto_ptr<RecoResult>  _chisq( new RecoResult );
+   std::auto_ptr<RecoResult>  chisq( new RecoResult );
 
    const METList&  metList   = *(_metHandle.product() );
    const MuonList& muList    = *(_muonHandle.product());
@@ -84,24 +84,20 @@ void ChiSqMassReco::produce( edm::Event& iEvent, const edm::EventSetup& )
 
    //----- ChiSquare solver -----
    _solver.ClearAll();
-   _solver.SetMET( metList.front().pt() , metList.front().phi() );
+   _solver.SetMET( &(metList.front()) );
    for( const auto& mu : muList ){
-      _solver.SetLepton( mu.pt(), mu.eta(), mu.phi(), mu.energy() );
+      _solver.SetLepton( &mu );
    }
    for( const auto& el : elecList ){
-      _solver.SetLepton( el.pt(), el.eta(), el.phi(), el.energy() );
+      _solver.SetLepton( &el );
    }
    for( const auto& jet : jetList ){
-      if( jet.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.86 ){
-         _solver.AddBTagJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
-      }else{
-         _solver.AddLightJet( jet.pt(), jet.eta(), jet.phi(), jet.energy() );
-      }
+      _solver.AddJet( &jet );
    }
    _solver.RunPermutations();
-   *_chisq = _solver.BestResult();
+   *chisq = _solver.BestResult();
 
-   iEvent.put( _chisq , "ChiSquareResult" );
+   iEvent.put( chisq , "ChiSquareResult" );
 }
 
 DEFINE_FWK_MODULE(ChiSqMassReco);

@@ -4,4 +4,3 @@
 <use name="DataFormats/Luminosity" />
 <use name="PhysicsTools/FWLite" />
 <use name="TstarAnalysis/TstarMassReco"/>
-<bin name="simple_test" file="simple_test.cc"/>

@@ -64,13 +64,6 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 #-------------------------------------------------------------------------------
 #   Load Settings
 #-------------------------------------------------------------------------------
-process.ChiSq6jet1b = cms.EDProducer(
-    "ChiSqMassReco",
-    metsrc      = cms.InputTag( "slimmedMETs" ),
-    muonsrc     = cms.InputTag( "skimmedPatMuons" ),
-    electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-    jetsrc      = cms.InputTag( "skimmedPatJets" ),
-)
 process.ChiSq6jet0b = cms.EDProducer(
     "ChiSqMassReco",
     metsrc      = cms.InputTag( "slimmedMETs" ),
@@ -79,7 +72,32 @@ process.ChiSq6jet0b = cms.EDProducer(
     jetsrc      = cms.InputTag( "skimmedPatJets" ),
     ReqBJet     = cms.untracked.int32(0),
 )
+process.ChiSq6jet1b = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc      = cms.InputTag( "slimmedMETs" ),
+    muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+    electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+    jetsrc      = cms.InputTag( "skimmedPatJets" ),
+    ReqBJet     = cms.untracked.int32(1),
+)
+process.ChiSq6jet2b = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc      = cms.InputTag( "slimmedMETs" ),
+    muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+    electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+    jetsrc      = cms.InputTag( "skimmedPatJets" ),
+    ReqBJet     = cms.untracked.int32(2),
+)
 
+process.ChiSq8jet0b = cms.EDProducer(
+    "ChiSqMassReco",
+    metsrc      = cms.InputTag( "slimmedMETs" ),
+    muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+    electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+    jetsrc      = cms.InputTag( "skimmedPatJets" ),
+    MaxJet      = cms.untracked.int32(8),
+    ReqBJet     = cms.untracked.int32(0)
+)
 process.ChiSq8jet1b = cms.EDProducer(
     "ChiSqMassReco",
     metsrc      = cms.InputTag( "slimmedMETs" ),
@@ -87,25 +105,107 @@ process.ChiSq8jet1b = cms.EDProducer(
     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
     jetsrc      = cms.InputTag( "skimmedPatJets" ),
     MaxJet      = cms.untracked.int32(8),
+    ReqBJet     = cms.untracked.int32(1)
 )
-
-process.NoTopConstrain = cms.EDProducer(
-    "HitFitMassReco",
+process.ChiSq8jet2b = cms.EDProducer(
+    "ChiSqMassReco",
     metsrc      = cms.InputTag( "slimmedMETs" ),
     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
-    jetsrc      = cms.InputTag( "skimmedPatJets" )
+    jetsrc      = cms.InputTag( "skimmedPatJets" ),
+    MaxJet      = cms.untracked.int32(8),
+    ReqBJet     = cms.untracked.int32(2)
 )
 
-process.AddTopConstrain = cms.EDProducer(
+# process.NoTopConstrain6j0b = cms.EDProducer(
+#     "HitFitMassReco",
+#     metsrc      = cms.InputTag( "slimmedMETs" ),
+#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
+#     ReqBJet     = cms.untracked.int32(0),
+# )
+
+process.NoTopConstrain6j1b = cms.EDProducer(
     "HitFitMassReco",
     metsrc      = cms.InputTag( "slimmedMETs" ),
     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
     jetsrc      = cms.InputTag( "skimmedPatJets" ),
-    fittingTopMass = cms.untracked.double(173.5)
+    ReqBJet     = cms.untracked.int32(1),
 )
 
+# process.NoTopConstrain6j2b = cms.EDProducer(
+#     "HitFitMassReco",
+#     metsrc      = cms.InputTag( "slimmedMETs" ),
+#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
+#     ReqBJet     = cms.untracked.int32(2),
+# )
+
+# process.NoTopConstrain8j0b = cms.EDProducer(
+#     "HitFitMassReco",
+#     metsrc      = cms.InputTag( "slimmedMETs" ),
+#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
+#     MaxJet      = cms.untracked.int32(8),
+#     ReqBJet     = cms.untracked.int32(0),
+# )
+
+process.NoTopConstrain8j1b = cms.EDProducer(
+    "HitFitMassReco",
+    metsrc      = cms.InputTag( "slimmedMETs" ),
+    muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+    electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+    jetsrc      = cms.InputTag( "skimmedPatJets" ),
+    MaxJet      = cms.untracked.int32(8),
+    ReqBJet     = cms.untracked.int32(1),
+)
+
+# process.NoTopConstrain8j2b = cms.EDProducer(
+#     "HitFitMassReco",
+#     metsrc      = cms.InputTag( "slimmedMETs" ),
+#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
+#     MaxJet      = cms.untracked.int32(8),
+#     ReqBJet     = cms.untracked.int32(2),
+# )
+
+# process.AddTopConstrain6j0b = cms.EDProducer(
+#  "HitFitMassReco",
+#  metsrc      = cms.InputTag( "slimmedMETs" ),
+#  muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+#  electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+#  jetsrc      = cms.InputTag( "skimmedPatJets" ),
+#  MaxJet      = cms.untracked.int32(6),
+#  ReqBJet     = cms.untracked.int32(0),
+#  fittingTopMass = cms.untracked.double(173.5)
+# )
+#
+# process.AddTopConstrain6j1b = cms.EDProducer(
+#  "HitFitMassReco",
+#  metsrc      = cms.InputTag( "slimmedMETs" ),
+#  muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+#  electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+#  jetsrc      = cms.InputTag( "skimmedPatJets" ),
+#  MaxJet      = cms.untracked.int32(6),
+#  ReqBJet     = cms.untracked.int32(1),
+#  fittingTopMass = cms.untracked.double(173.5)
+# )
+# process.AddTopConstrain6j2b = cms.EDProducer(
+#     "HitFitMassReco",
+#     metsrc      = cms.InputTag( "slimmedMETs" ),
+#     muonsrc     = cms.InputTag( "skimmedPatMuons" ),
+#     electronsrc = cms.InputTag( "skimmedPatElectrons" ),
+#     jetsrc      = cms.InputTag( "skimmedPatJets" ),
+#     MaxJet      = cms.untracked.int32(6),
+#     ReqBJet     = cms.untracked.int32(2),
+#     fittingTopMass = cms.untracked.double(173.5)
+# )
+#
 #-------------------------------------------------------------------------------
 #   Defining output Module
 #-------------------------------------------------------------------------------
